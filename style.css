@@ -361,6 +361,10 @@ body {
   gap: 1rem;
 }
 
+/* ── VIEW SWITCHING  –  only the active page shows ── */
+.view-panel { display: none; }
+.view-panel.is-active { display: flex; }
+
 /* ── Greeting card ── */
 .greeting-card {
   background: linear-gradient(135deg, #FF8FC0, #2EC4B6);
