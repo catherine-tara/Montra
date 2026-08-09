@@ -13,7 +13,7 @@
             butter:  { DEFAULT: '#FFD966', light: '#FFF3C4', dark: '#E6B800' },
             fresh:   { DEFAULT: '#4CAF7D', light: '#D6F5E3', dark: '#2E7D52' },
             coral:   { DEFAULT: '#FF6B6B', light: '#FFE0E0', dark: '#C0392B' },
-            brand:   { DEFAULT: '#FF7A1A', light: '#FFE8D1', dark: '#E65100' },
+            brand:   { DEFAULT: '#8B5CF6', light: '#EDE9FE', dark: '#6D28D9' },
             cream:   '#FFFDF4',
             charcoal:'#2D3436',
           },
@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=5" />
+  <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body class="bg-cream font-sans text-charcoal min-h-screen">
 
@@ -52,9 +52,10 @@
       <div class="sidebar-brand">
         <div class="logo-badge">
           <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M4 8a2 2 0 012-2h11a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
-            <path d="M4 8V6.5A1.5 1.5 0 015.5 5h9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
-            <circle cx="15.5" cy="12.5" r="1.4" fill="#fff"/>
+            <rect x="4" y="13" width="3.6" height="7" rx="1.4" fill="#fff"/>
+            <rect x="10.2" y="9" width="3.6" height="11" rx="1.4" fill="#fff"/>
+            <rect x="16.4" y="4.6" width="3.6" height="15.4" rx="1.4" fill="#fff"/>
+            <circle cx="18.2" cy="2.4" r="1.5" fill="#fff"/>
           </svg>
         </div>
         <div class="brand-copy">
@@ -124,9 +125,10 @@
           <span class="brand-wordmark brand-wordmark-sm">Mon<span>tra</span></span>
           <div class="logo-badge logo-badge-sm">
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4 8a2 2 0 012-2h11a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
-              <path d="M4 8V6.5A1.5 1.5 0 015.5 5h9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
-              <circle cx="15.5" cy="12.5" r="1.4" fill="#fff"/>
+              <rect x="4" y="13" width="3.6" height="7" rx="1.4" fill="#fff"/>
+              <rect x="10.2" y="9" width="3.6" height="11" rx="1.4" fill="#fff"/>
+              <rect x="16.4" y="4.6" width="3.6" height="15.4" rx="1.4" fill="#fff"/>
+              <circle cx="18.2" cy="2.4" r="1.5" fill="#fff"/>
             </svg>
           </div>
         </div>
@@ -170,7 +172,7 @@
 
           <!-- TAMBAH TRANSAKSI (main function, right under Ringkasan Utama) -->
           <div class="card">
-            <h2 class="section-title"><span class="title-chip">➕</span><span data-i18n="add_tx_title">Tambah Transaksi</span></h2>
+            <h2 class="section-title"><span class="title-chip" style="background:#FFE1F0">➕</span><span data-i18n="add_tx_title">Tambah Transaksi</span></h2>
             <form id="txForm" class="space-y-4 mt-4" novalidate>
 
               <div class="grid grid-cols-2 gap-3">
@@ -211,7 +213,7 @@
               <div>
                 <label class="form-label" data-i18n="amount">Jumlah</label>
                 <div class="relative">
-                  <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#E65100"></span>
+                  <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#6D28D9"></span>
                   <input type="text" id="fAmount" class="form-input pl-12" placeholder="0" inputmode="decimal" autocomplete="off" required />
                 </div>
               </div>
@@ -235,7 +237,7 @@
           <!-- KATEGORI (pie chart) -->
           <div class="chart-panel">
             <div class="chart-panel-header">
-              <span class="chart-panel-title"><span class="title-chip">🏷️</span><span data-i18n="chart_category">Kategori</span></span>
+              <span class="chart-panel-title"><span class="title-chip" style="background:#D9F7EF">🏷️</span><span data-i18n="chart_category">Kategori</span></span>
               <span class="chart-panel-sub" data-i18n="chart_category_sub">Pengeluaran</span>
             </div>
             <div class="chart-panel-body donut-wrap">
@@ -253,7 +255,7 @@
 
           <div class="card">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h2 class="section-title"><span class="title-chip" style="background:#FFE0E0">🧾</span><span data-i18n="history_title">Riwayat Transaksi</span></h2>
+              <h2 class="section-title"><span class="title-chip" style="background:#EDE9FE">🧾</span><span data-i18n="history_title">Riwayat Transaksi</span></h2>
               <div class="flex flex-wrap gap-2">
                 <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
                 <select id="filterType" class="form-input text-sm py-1.5 w-36">
@@ -293,14 +295,14 @@
           </div>
 
           <div class="card">
-            <h2 class="section-title mb-4"><span class="title-chip" style="background:#FFF3C4">🏷️</span><span data-i18n="category_breakdown_title">Pengeluaran per Kategori</span></h2>
+            <h2 class="section-title mb-4"><span class="title-chip" style="background:#FFE1F0">🏷️</span><span data-i18n="category_breakdown_title">Pengeluaran per Kategori</span></h2>
             <div id="categoryBreakdown" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
             <p id="catEmpty" class="text-sm text-gray-400 hidden" data-i18n="category_empty">Belum ada pengeluaran.</p>
           </div>
 
           <div class="chart-panel">
             <div class="chart-panel-header">
-              <span class="chart-panel-title"><span class="title-chip" style="background:#D6F5E3">📈</span><span data-i18n="chart_monthly">Bulanan</span></span>
+              <span class="chart-panel-title"><span class="title-chip" style="background:#D9F7EF">📈</span><span data-i18n="chart_monthly">Bulanan</span></span>
               <span class="chart-panel-sub" data-i18n="chart_monthly_sub">Pemasukan vs Pengeluaran</span>
             </div>
             <div class="chart-panel-body bar-wrap">
@@ -335,6 +337,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=5"></script>
+  <script src="script.js?v=7"></script>
 </body>
 </html>
