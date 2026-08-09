@@ -78,6 +78,37 @@ body {
 .sidebar-link:hover { background: #FFE8D1; color: #2D3436; }
 .sidebar-link.active { background: #FF7A1A; color: #ffffff; }
 
+.nav-icon {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: #FFF1E4;
+  color: #FF7A1A;
+  transition: background 0.15s, color 0.15s;
+}
+.sidebar-link:hover .nav-icon { background: #FFDCB0; }
+.sidebar-link.active .nav-icon { background: rgba(255,255,255,0.22); color: #fff; }
+
+/* ── TITLE CHIP (decorative icon badge for section/chart headers) ── */
+.title-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 27px;
+  height: 27px;
+  border-radius: 9px;
+  background: #FFE8D1;
+  margin-right: 0.4rem;
+  font-size: 0.95rem;
+  vertical-align: middle;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+.chart-panel-title { display: inline-flex; align-items: center; }
+.section-title { display: flex; align-items: center; }
+
 .sidebar-actions {
   display: flex;
   flex-direction: column;
@@ -505,6 +536,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.chart-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.09);
 }
 .chart-panel-header {
   display: flex;
@@ -525,8 +561,8 @@ body {
   position: relative;
   flex: 1;
 }
-.donut-wrap { min-height: 180px; }
-.bar-wrap   { min-height: 180px; }
+.donut-wrap { min-height: 240px; }
+.bar-wrap   { min-height: 220px; }
 .chart-empty {
   position: absolute;
   inset: 0;
@@ -545,6 +581,11 @@ body {
   border-radius: 1.25rem;
   padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(0,0,0,0.09);
 }
 
 /* === SECTION TITLE === */
