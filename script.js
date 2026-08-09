@@ -47,9 +47,9 @@ const CATEGORIES = {
 
 // Consistent colour palette for categories (brand orange leads, then accents)
 const CAT_COLORS = [
-  '#FF7A1A', '#4CAF7D', '#FF6B6B', '#FFD966', '#54C6EB',
-  '#FF6B9D', '#9ED36A', '#FFA07A', '#70C1B3', '#B5838D',
-  '#E9C46A', '#2A9D8F',
+  '#8B5CF6', '#FF6FA0', '#2DD4BF', '#C084FC', '#F472B6',
+  '#5EEAD4', '#A78BFA', '#FDA4AF', '#34D399', '#60A5FA',
+  '#FBBF24', '#94A3B8',
 ];
 
 // ═══════════════════════════════════════════════════════════════
@@ -574,7 +574,7 @@ function renderSummary() {
 
   if (Object.keys(totals).length === 0) {
     idrEl.innerHTML = `
-      <div class="idr-card" style="background:#FFE8D1;grid-column:1/-1">
+      <div class="idr-card" style="background:#D9F7EF;grid-column:1/-1">
         <span class="ic-icon">👋</span>
         <span class="ic-label">${t('welcome_title')}</span>
         <span class="ic-value" style="font-size:0.95rem;color:#57606a">${t('welcome_sub')}</span>
@@ -1183,27 +1183,6 @@ function initEvents() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SCROLL SPY  –  keeps sidebar highlight in sync with what's on screen
-// ═══════════════════════════════════════════════════════════════
-function initScrollSpy() {
-  const sections = document.querySelectorAll('.dashboard-panel[id]');
-  const links = document.querySelectorAll('.sidebar-link');
-  if (!sections.length || !links.length) return;
-
-  const setActive = (id) => {
-    links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === `#${id}`));
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) setActive(entry.target.id);
-    });
-  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
-
-  sections.forEach(sec => observer.observe(sec));
-}
-
-// ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
 function init() {
@@ -1218,7 +1197,6 @@ function init() {
   updateCurrencyPrefix();
 
   renderAll();
-  initScrollSpy();
 }
 
 document.addEventListener('DOMContentLoaded', init);
