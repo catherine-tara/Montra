@@ -1183,6 +1183,27 @@ function initEvents() {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// SCROLL SPY  –  keeps sidebar highlight in sync with what's on screen
+// ═══════════════════════════════════════════════════════════════
+function initScrollSpy() {
+  const sections = document.querySelectorAll('.dashboard-panel[id]');
+  const links = document.querySelectorAll('.sidebar-link');
+  if (!sections.length || !links.length) return;
+
+  const setActive = (id) => {
+    links.forEach(l => l.classList.toggle('active', l.getAttribute('href') === `#${id}`));
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, { rootMargin: '-15% 0px -70% 0px', threshold: 0 });
+
+  sections.forEach(sec => observer.observe(sec));
+}
+
+// ═══════════════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════════════
 function init() {
@@ -1197,6 +1218,7 @@ function init() {
   updateCurrencyPrefix();
 
   renderAll();
+  initScrollSpy();
 }
 
 document.addEventListener('DOMContentLoaded', init);
