@@ -210,14 +210,14 @@ body {
 
 /* ── LOGO BADGE ── */
 .logo-badge {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
   display: grid;
   place-items: center;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #FF9142, #FF6A00);
-  box-shadow: 0 4px 14px rgba(255,122,26,0.35);
+  border-radius: 13px;
+  background: linear-gradient(135deg, #FFA24D, #FF6A00);
+  box-shadow: 0 6px 16px rgba(255,106,0,0.38), 0 0 0 4px #FFE8D1;
 }
 .logo-badge svg { width: 22px; height: 22px; }
 .logo-badge-sm {
@@ -225,8 +225,37 @@ body {
   height: 34px;
   flex: 0 0 34px;
   border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(255,106,0,0.35), 0 0 0 3px #FFE8D1;
 }
 .logo-badge-sm svg { width: 18px; height: 18px; }
+
+/* ── WORDMARK ── */
+.brand-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 0.32rem;
+}
+.brand-wordmark {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #2D3436;
+  line-height: 1;
+}
+.brand-wordmark span { color: #FF7A1A; }
+.brand-wordmark-sm { font-size: 1.08rem; }
+.brand-tag {
+  display: inline-block;
+  width: fit-content;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #E65100;
+  background: #FFE8D1;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+}
 
 /* ── MAIN CONTENT ── */
 .main-content {
