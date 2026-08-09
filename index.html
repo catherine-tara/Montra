@@ -13,7 +13,7 @@
             butter:  { DEFAULT: '#FFD966', light: '#FFF3C4', dark: '#E6B800' },
             fresh:   { DEFAULT: '#4CAF7D', light: '#D6F5E3', dark: '#2E7D52' },
             coral:   { DEFAULT: '#FF6B6B', light: '#FFE0E0', dark: '#C0392B' },
-            brand:   { DEFAULT: '#8B5CF6', light: '#EDE9FE', dark: '#6D28D9' },
+            brand:   { DEFAULT: '#2EC4B6', light: '#D9F7EF', dark: '#0F9488' },
             cream:   '#FFFDF4',
             charcoal:'#2D3436',
           },
@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=7" />
+  <link rel="stylesheet" href="style.css?v=8" />
 </head>
 <body class="bg-cream font-sans text-charcoal min-h-screen">
 
@@ -213,7 +213,7 @@
               <div>
                 <label class="form-label" data-i18n="amount">Jumlah</label>
                 <div class="relative">
-                  <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#6D28D9"></span>
+                  <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#0F9488"></span>
                   <input type="text" id="fAmount" class="form-input pl-12" placeholder="0" inputmode="decimal" autocomplete="off" required />
                 </div>
               </div>
@@ -255,7 +255,7 @@
 
           <div class="card">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-              <h2 class="section-title"><span class="title-chip" style="background:#EDE9FE">🧾</span><span data-i18n="history_title">Riwayat Transaksi</span></h2>
+              <h2 class="section-title"><span class="title-chip" style="background:#D9F7EF">🧾</span><span data-i18n="history_title">Riwayat Transaksi</span></h2>
               <div class="flex flex-wrap gap-2">
                 <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
                 <select id="filterType" class="form-input text-sm py-1.5 w-36">
@@ -337,6 +337,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=7"></script>
+  <script src="script.js?v=8"></script>
 </body>
 </html>
