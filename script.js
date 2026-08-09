@@ -1170,11 +1170,24 @@ function initEvents() {
   document.getElementById('sidebarOverlay').addEventListener('click', closeSidebar);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSidebar(); });
 
-  // Close drawer + highlight active link when a nav item is tapped
+  // Sidebar nav: switch views (only the clicked page shows), highlight link, close drawer
   document.querySelectorAll('.sidebar-link').forEach(link => {
-    link.addEventListener('click', () => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      const targetId = link.getAttribute('href')?.replace('#', '');
+      if (targetId) {
+        document.querySelectorAll('.view-panel').forEach(panel => {
+          panel.classList.toggle('is-active', panel.id === targetId);
+        });
+      }
+
       document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
       link.classList.add('active');
+
+      document.querySelector('.main-content')?.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
       closeSidebar();
     });
   });
