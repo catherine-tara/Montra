@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=3" />
+  <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body class="bg-cream font-sans text-charcoal min-h-screen">
 
@@ -66,16 +66,12 @@
       <!-- Nav items -->
       <nav class="sidebar-nav">
         <a href="#dashboard" class="sidebar-link active" data-nav="dashboard">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <span class="nav-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
           <span data-i18n="nav_dashboard">Dashboard</span>
         </a>
         <a href="#transactions" class="sidebar-link" data-nav="transactions">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          <span data-i18n="nav_transactions">Daftar Transaksi</span>
-        </a>
-        <a href="#add" class="sidebar-link" data-nav="add">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-          <span data-i18n="nav_add">Tambah</span>
+          <span class="nav-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></span>
+          <span data-i18n="nav_transactions">Riwayat Transaksi</span>
         </a>
       </nav>
 
@@ -94,7 +90,7 @@
 
       <!-- Settings -->
       <div class="sidebar-settings">
-        <div class="sidebar-settings-title" data-i18n="settings">⚙️ Pengaturan</div>
+        <div class="sidebar-settings-title"><span class="title-chip" style="background:#EDE7FE">⚙️</span><span data-i18n="settings">Pengaturan</span></div>
 
         <label class="settings-label" data-i18n="your_name">Nama Kamu</label>
         <div class="settings-row">
@@ -172,159 +168,152 @@
             <div id="foreignCards" class="foreign-cards-grid"></div>
           </div>
 
-          <!-- CHARTS ROW -->
-          <div class="charts-row">
+          <!-- TAMBAH TRANSAKSI (main function, right under Ringkasan Utama) -->
+          <div class="card">
+            <h2 class="section-title"><span class="title-chip">➕</span><span data-i18n="add_tx_title">Tambah Transaksi</span></h2>
+            <form id="txForm" class="space-y-4 mt-4" novalidate>
 
-            <!-- Donut: spending by category (the "pie chart") -->
-            <div class="chart-panel">
-              <div class="chart-panel-header">
-                <span class="chart-panel-title" data-i18n="chart_category">🏷️ Kategori</span>
-                <span class="chart-panel-sub" data-i18n="chart_category_sub">Pengeluaran</span>
+              <div class="grid grid-cols-2 gap-3">
+                <div class="col-span-2 sm:col-span-1">
+                  <label class="form-label" data-i18n="date">Tanggal</label>
+                  <input type="date" id="fDate" class="form-input" required />
+                </div>
+                <div class="col-span-2 sm:col-span-1">
+                  <label class="form-label" data-i18n="type">Jenis</label>
+                  <div class="flex rounded-xl overflow-hidden border border-gray-200 h-10">
+                    <button type="button" id="typeIncome"  class="type-btn flex-1 text-sm font-semibold transition-all" data-i18n="income_btn">↑ Pemasukan</button>
+                    <button type="button" id="typeExpense" class="type-btn flex-1 text-sm font-semibold transition-all" data-i18n="expense_btn">↓ Pengeluaran</button>
+                  </div>
+                </div>
               </div>
-              <div class="chart-panel-body donut-wrap">
-                <canvas id="catChart"></canvas>
-                <p id="catChartEmpty" class="chart-empty hidden" data-i18n="chart_empty">Belum ada data</p>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="form-label" data-i18n="category">Kategori</label>
+                  <select id="fCategory" class="form-input" required>
+                    <option value="">Pilih…</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label" data-i18n="currency">Mata Uang</label>
+                  <select id="fCurrency" class="form-input">
+                    <option value="IDR">IDR – Rupiah</option>
+                    <option value="USD">USD – Dollar AS</option>
+                    <option value="KRW">KRW – Won Korea</option>
+                    <option value="JPY">JPY – Yen Jepang</option>
+                    <option value="SGD">SGD – Dollar Singapura</option>
+                    <option value="EUR">EUR – Euro</option>
+                    <option value="GBP">GBP – Pound Sterling</option>
+                  </select>
+                </div>
               </div>
+
+              <div>
+                <label class="form-label" data-i18n="amount">Jumlah</label>
+                <div class="relative">
+                  <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#E65100"></span>
+                  <input type="text" id="fAmount" class="form-input pl-12" placeholder="0" inputmode="decimal" autocomplete="off" required />
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label">
+                  <span data-i18n="desc">Keterangan</span>
+                  <span class="text-gray-400 font-normal" data-i18n="desc_optional">(opsional)</span>
+                </label>
+                <input type="text" id="fDesc" class="form-input" data-i18n-placeholder="desc_placeholder" placeholder="Mis. Gaji bulan Juni…" maxlength="120" />
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button type="submit" id="btnSubmit" class="btn-primary flex-1" data-i18n="submit_save">Simpan</button>
+                <button type="button" id="btnCancel" class="btn-ghost hidden" data-i18n="cancel">Batal</button>
+              </div>
+              <p id="formError" class="text-sm hidden" style="color:#FF6B6B"></p>
+            </form>
+          </div>
+
+          <!-- KATEGORI (pie chart) -->
+          <div class="chart-panel">
+            <div class="chart-panel-header">
+              <span class="chart-panel-title"><span class="title-chip">🏷️</span><span data-i18n="chart_category">Kategori</span></span>
+              <span class="chart-panel-sub" data-i18n="chart_category_sub">Pengeluaran</span>
             </div>
-
-            <!-- Bar: monthly income vs expense -->
-            <div class="chart-panel chart-panel-wide">
-              <div class="chart-panel-header">
-                <span class="chart-panel-title" data-i18n="chart_monthly">📈 Bulanan</span>
-                <span class="chart-panel-sub" data-i18n="chart_monthly_sub">Pemasukan vs Pengeluaran</span>
-              </div>
-              <div class="chart-panel-body bar-wrap">
-                <canvas id="barChart"></canvas>
-                <p id="barChartEmpty" class="chart-empty hidden" data-i18n="chart_empty">Belum ada data</p>
-              </div>
+            <div class="chart-panel-body donut-wrap">
+              <canvas id="catChart"></canvas>
+              <p id="catChartEmpty" class="chart-empty hidden" data-i18n="chart_empty">Belum ada data</p>
             </div>
-
-          </div><!-- /charts-row -->
+          </div>
 
         </section><!-- /dashboard-panel -->
 
         <!-- ══════════════════════════════════════
-             CATEGORY BREAKDOWN
+             TRANSAKSI  (riwayat → pengeluaran per kategori → bulanan)
         ══════════════════════════════════════ -->
-        <div class="card" id="add">
-          <h2 class="section-title mb-4" data-i18n="category_breakdown_title">🏷️ Pengeluaran per Kategori</h2>
-          <div id="categoryBreakdown" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
-          <p id="catEmpty" class="text-sm text-gray-400 hidden" data-i18n="category_empty">Belum ada pengeluaran.</p>
-        </div>
+        <section id="transactions" class="dashboard-panel">
 
-        <!-- ══════════════════════════════════════
-             ADD TRANSACTION FORM
-        ══════════════════════════════════════ -->
-        <div class="card">
-          <h2 class="section-title" data-i18n="add_tx_title">➕ Tambah Transaksi</h2>
-          <form id="txForm" class="space-y-4 mt-4" novalidate>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div class="col-span-2 sm:col-span-1">
-                <label class="form-label" data-i18n="date">Tanggal</label>
-                <input type="date" id="fDate" class="form-input" required />
-              </div>
-              <div class="col-span-2 sm:col-span-1">
-                <label class="form-label" data-i18n="type">Jenis</label>
-                <div class="flex rounded-xl overflow-hidden border border-gray-200 h-10">
-                  <button type="button" id="typeIncome"  class="type-btn flex-1 text-sm font-semibold transition-all" data-i18n="income_btn">↑ Pemasukan</button>
-                  <button type="button" id="typeExpense" class="type-btn flex-1 text-sm font-semibold transition-all" data-i18n="expense_btn">↓ Pengeluaran</button>
-                </div>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="form-label" data-i18n="category">Kategori</label>
-                <select id="fCategory" class="form-input" required>
-                  <option value="">Pilih…</option>
+          <div class="card">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <h2 class="section-title"><span class="title-chip" style="background:#FFE0E0">🧾</span><span data-i18n="history_title">Riwayat Transaksi</span></h2>
+              <div class="flex flex-wrap gap-2">
+                <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
+                <select id="filterType" class="form-input text-sm py-1.5 w-36">
+                  <option value="" data-i18n="filter_all_type">Semua Jenis</option>
+                  <option value="income" data-i18n="income_btn">↑ Pemasukan</option>
+                  <option value="expense" data-i18n="expense_btn">↓ Pengeluaran</option>
                 </select>
-              </div>
-              <div>
-                <label class="form-label" data-i18n="currency">Mata Uang</label>
-                <select id="fCurrency" class="form-input">
-                  <option value="IDR">IDR – Rupiah</option>
-                  <option value="USD">USD – Dollar AS</option>
-                  <option value="KRW">KRW – Won Korea</option>
-                  <option value="JPY">JPY – Yen Jepang</option>
-                  <option value="SGD">SGD – Dollar Singapura</option>
-                  <option value="EUR">EUR – Euro</option>
-                  <option value="GBP">GBP – Pound Sterling</option>
+                <select id="filterCurrency" class="form-input text-sm py-1.5 w-32">
+                  <option value="" data-i18n="filter_all_currency">Semua Mata Uang</option>
+                  <option value="IDR">IDR</option>
+                  <option value="USD">USD</option>
+                  <option value="KRW">KRW</option>
+                  <option value="JPY">JPY</option>
+                  <option value="SGD">SGD</option>
+                  <option value="EUR">EUR</option>
+                  <option value="GBP">GBP</option>
                 </select>
+                <button id="btnClearAll" class="btn-outline text-sm py-1.5" style="color:#FF6B6B;border-color:#FF6B6B;" data-i18n="clear_all">Hapus Semua</button>
               </div>
             </div>
-
-            <div>
-              <label class="form-label" data-i18n="amount">Jumlah</label>
-              <div class="relative">
-                <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#E65100"></span>
-                <input type="text" id="fAmount" class="form-input pl-12" placeholder="0" inputmode="decimal" autocomplete="off" required />
-              </div>
-            </div>
-
-            <div>
-              <label class="form-label">
-                <span data-i18n="desc">Keterangan</span>
-                <span class="text-gray-400 font-normal" data-i18n="desc_optional">(opsional)</span>
-              </label>
-              <input type="text" id="fDesc" class="form-input" data-i18n-placeholder="desc_placeholder" placeholder="Mis. Gaji bulan Juni…" maxlength="120" />
-            </div>
-
-            <div class="flex gap-2 pt-1">
-              <button type="submit" id="btnSubmit" class="btn-primary flex-1" data-i18n="submit_save">Simpan</button>
-              <button type="button" id="btnCancel" class="btn-ghost hidden" data-i18n="cancel">Batal</button>
-            </div>
-            <p id="formError" class="text-sm hidden" style="color:#FF6B6B"></p>
-          </form>
-        </div>
-
-        <!-- ══════════════════════════════════════
-             TRANSACTION HISTORY / LIST
-        ══════════════════════════════════════ -->
-        <div class="card" id="transactions">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 class="section-title" data-i18n="history_title">🧾 Riwayat Transaksi</h2>
-            <div class="flex flex-wrap gap-2">
-              <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
-              <select id="filterType" class="form-input text-sm py-1.5 w-36">
-                <option value="" data-i18n="filter_all_type">Semua Jenis</option>
-                <option value="income" data-i18n="income_btn">↑ Pemasukan</option>
-                <option value="expense" data-i18n="expense_btn">↓ Pengeluaran</option>
-              </select>
-              <select id="filterCurrency" class="form-input text-sm py-1.5 w-32">
-                <option value="" data-i18n="filter_all_currency">Semua Mata Uang</option>
-                <option value="IDR">IDR</option>
-                <option value="USD">USD</option>
-                <option value="KRW">KRW</option>
-                <option value="JPY">JPY</option>
-                <option value="SGD">SGD</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
-              </select>
-              <button id="btnClearAll" class="btn-outline text-sm py-1.5" style="color:#FF6B6B;border-color:#FF6B6B;" data-i18n="clear_all">Hapus Semua</button>
+            <div class="overflow-x-auto rounded-xl">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-brand-light text-charcoal">
+                    <th class="px-3 py-2 text-left font-semibold rounded-tl-xl" data-i18n="th_date">Tanggal</th>
+                    <th class="px-3 py-2 text-left font-semibold" data-i18n="th_type">Jenis</th>
+                    <th class="px-3 py-2 text-left font-semibold" data-i18n="th_category">Kategori</th>
+                    <th class="px-3 py-2 text-left font-semibold" data-i18n="th_desc">Keterangan</th>
+                    <th class="px-3 py-2 text-right font-semibold" data-i18n="th_amount">Jumlah</th>
+                    <th class="px-3 py-2 rounded-tr-xl"></th>
+                  </tr>
+                </thead>
+                <tbody id="txTableBody"></tbody>
+              </table>
+              <p id="txEmpty" class="text-center text-sm text-gray-400 py-8 hidden" data-i18n="tx_empty">Belum ada transaksi. Yuk, mulai catat! 🎉</p>
             </div>
           </div>
-          <div class="overflow-x-auto rounded-xl">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="bg-brand-light text-charcoal">
-                  <th class="px-3 py-2 text-left font-semibold rounded-tl-xl" data-i18n="th_date">Tanggal</th>
-                  <th class="px-3 py-2 text-left font-semibold" data-i18n="th_type">Jenis</th>
-                  <th class="px-3 py-2 text-left font-semibold" data-i18n="th_category">Kategori</th>
-                  <th class="px-3 py-2 text-left font-semibold" data-i18n="th_desc">Keterangan</th>
-                  <th class="px-3 py-2 text-right font-semibold" data-i18n="th_amount">Jumlah</th>
-                  <th class="px-3 py-2 rounded-tr-xl"></th>
-                </tr>
-              </thead>
-              <tbody id="txTableBody"></tbody>
-            </table>
-            <p id="txEmpty" class="text-center text-sm text-gray-400 py-8 hidden" data-i18n="tx_empty">Belum ada transaksi. Yuk, mulai catat! 🎉</p>
+
+          <div class="card">
+            <h2 class="section-title mb-4"><span class="title-chip" style="background:#FFF3C4">🏷️</span><span data-i18n="category_breakdown_title">Pengeluaran per Kategori</span></h2>
+            <div id="categoryBreakdown" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+            <p id="catEmpty" class="text-sm text-gray-400 hidden" data-i18n="category_empty">Belum ada pengeluaran.</p>
           </div>
-        </div>
+
+          <div class="chart-panel">
+            <div class="chart-panel-header">
+              <span class="chart-panel-title"><span class="title-chip" style="background:#D6F5E3">📈</span><span data-i18n="chart_monthly">Bulanan</span></span>
+              <span class="chart-panel-sub" data-i18n="chart_monthly_sub">Pemasukan vs Pengeluaran</span>
+            </div>
+            <div class="chart-panel-body bar-wrap">
+              <canvas id="barChart"></canvas>
+              <p id="barChartEmpty" class="chart-empty hidden" data-i18n="chart_empty">Belum ada data</p>
+            </div>
+          </div>
+
+        </section><!-- /transactions -->
 
         <!-- FOOTER -->
         <footer class="content-footer">
-          Montra &copy; 2026 &middot; Created by Bintang
+          Montra &copy; 2026 &middot; Created by CTM
         </footer>
 
       </div><!-- /content-inner -->
@@ -346,6 +335,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=3"></script>
+  <script src="script.js?v=4"></script>
 </body>
 </html>
