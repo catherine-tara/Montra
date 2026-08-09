@@ -13,6 +13,7 @@
             butter:  { DEFAULT: '#FFD966', light: '#FFF3C4', dark: '#E6B800' },
             fresh:   { DEFAULT: '#4CAF7D', light: '#D6F5E3', dark: '#2E7D52' },
             coral:   { DEFAULT: '#FF6B6B', light: '#FFE0E0', dark: '#C0392B' },
+            brand:   { DEFAULT: '#FF7A1A', light: '#FFE8D1', dark: '#E65100' },
             cream:   '#FFFDF4',
             charcoal:'#2D3436',
           },
@@ -40,30 +41,41 @@
   ════════════════════════════════════════════════ -->
   <div class="app-shell">
 
-    <!-- ── LEFT SIDEBAR ── -->
-    <aside class="sidebar">
+    <!-- ── LEFT SIDEBAR (desktop: static / mobile: off-canvas drawer) ── -->
+    <aside class="sidebar" id="sidebar">
+
+      <div class="sidebar-top">
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">&times;</button>
+      </div>
+
       <!-- Brand -->
       <div class="sidebar-brand">
-        <span class="text-2xl">💰</span>
+        <div class="logo-badge">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 8a2 2 0 012-2h11a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+            <path d="M4 8V6.5A1.5 1.5 0 015.5 5h9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+            <circle cx="15.5" cy="12.5" r="1.4" fill="#fff"/>
+          </svg>
+        </div>
         <div>
           <div class="text-base font-extrabold tracking-tight leading-tight">Montra</div>
-          <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest">Finance</div>
+          <div class="text-[10px] font-semibold text-gray-400 uppercase tracking-widest" data-i18n="tagline">Keuangan Pribadi</div>
         </div>
       </div>
 
       <!-- Nav items -->
       <nav class="sidebar-nav">
-        <a href="#dashboard" class="sidebar-link active">
+        <a href="#dashboard" class="sidebar-link active" data-nav="dashboard">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          <span>Dashboard</span>
+          <span data-i18n="nav_dashboard">Dashboard</span>
         </a>
-        <a href="#transactions" class="sidebar-link">
+        <a href="#transactions" class="sidebar-link" data-nav="transactions">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-          <span>Transaksi</span>
+          <span data-i18n="nav_transactions">Daftar Transaksi</span>
         </a>
-        <a href="#add" class="sidebar-link">
+        <a href="#add" class="sidebar-link" data-nav="add">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
-          <span>Tambah</span>
+          <span data-i18n="nav_add">Tambah</span>
         </a>
       </nav>
 
@@ -71,49 +83,73 @@
       <div class="sidebar-actions">
         <button id="btnImport" title="Import CSV" class="sidebar-action-btn">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-          <span>Import</span>
+          <span data-i18n="import">Import</span>
         </button>
         <button id="btnExport" title="Export CSV" class="sidebar-action-btn">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 8l5-5 5 5M12 3v12"/></svg>
-          <span>Export</span>
+          <span data-i18n="export">Export</span>
         </button>
         <input type="file" id="importFile" accept=".csv" class="hidden" />
+      </div>
+
+      <!-- Settings -->
+      <div class="sidebar-settings">
+        <div class="sidebar-settings-title" data-i18n="settings">⚙️ Pengaturan</div>
+
+        <label class="settings-label" data-i18n="your_name">Nama Kamu</label>
+        <div class="settings-row">
+          <input type="text" id="userName" data-i18n-placeholder="name_placeholder" placeholder="Masukkan nama" maxlength="30" class="settings-input" />
+          <button id="saveName" class="settings-save-btn" data-i18n="save">Simpan</button>
+        </div>
+
+        <label class="settings-label" data-i18n="language">Bahasa</label>
+        <div class="lang-toggle">
+          <button type="button" class="lang-btn active" data-lang="id" id="langID">ID</button>
+          <button type="button" class="lang-btn" data-lang="en" id="langEN">EN</button>
+        </div>
+
+        <button id="resetData" class="reset-btn" data-i18n="reset_all">🗑️ Hapus Semua Data</button>
       </div>
 
       <!-- Footer brand -->
       <div class="sidebar-footer">Montra © 2026</div>
     </aside>
 
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- ── MAIN CONTENT ── -->
     <div class="main-content">
 
       <!-- ── TOP BAR (mobile only) ── -->
       <header class="topbar">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">💰</span>
-          <span class="font-extrabold text-base">Montra</span>
-        </div>
-        <div class="flex gap-2">
-          <button id="btnImportMob" title="Import" class="btn-outline flex items-center gap-1 text-xs py-1 px-2">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-            Import
-          </button>
-          <button id="btnExportMob" title="Export" class="btn-outline flex items-center gap-1 text-xs py-1 px-2">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 8l5-5 5 5M12 3v12"/></svg>
-            Export
-          </button>
+        <button class="hamburger" id="btnHamburger" aria-label="Open menu">☰</button>
+
+        <div class="topbar-brand">
+          <span class="topbar-title">Montra</span>
+          <div class="logo-badge logo-badge-sm">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 8a2 2 0 012-2h11a2 2 0 012 2v9a2 2 0 01-2 2H6a2 2 0 01-2-2V8z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/>
+              <path d="M4 8V6.5A1.5 1.5 0 015.5 5h9" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/>
+              <circle cx="15.5" cy="12.5" r="1.4" fill="#fff"/>
+            </svg>
+          </div>
         </div>
       </header>
 
       <div class="content-inner">
 
         <!-- ══════════════════════════════════════
-             DASHBOARD PANEL
+             DASHBOARD PANEL  (main / home page)
         ══════════════════════════════════════ -->
         <section id="dashboard" class="dashboard-panel">
 
-          <div class="dashboard-heading">
-            <h1 class="dashboard-title">Dashboard</h1>
+          <!-- GREETING -->
+          <div class="greeting-card">
+            <span class="greeting-emoji">👋</span>
+            <div class="greeting-text">
+              <div class="greeting-hello" id="greetingHello">Hello!</div>
+              <p class="greeting-sub" id="greetingSub"></p>
+            </div>
             <span class="dashboard-date" id="dashDate"></span>
           </div>
 
@@ -121,7 +157,7 @@
           <div class="idr-section">
             <div class="idr-section-label">
               <span class="flag-chip">🇮🇩</span>
-              <span class="idr-section-title">Ringkasan Utama (IDR)</span>
+              <span class="idr-section-title" data-i18n="idr_summary">Ringkasan Utama (IDR)</span>
             </div>
             <!-- ← rendered by renderSummary() → #summarySection -->
             <section id="summarySection" class="idr-cards-grid"></section>
@@ -131,7 +167,7 @@
           <div id="foreignSection" class="foreign-section hidden">
             <div class="foreign-section-label">
               <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 2a15 15 0 010 20M2 12h20"/></svg>
-              <span class="foreign-section-title">Mata Uang Lain</span>
+              <span class="foreign-section-title" data-i18n="other_currencies">Mata Uang Lain</span>
             </div>
             <div id="foreignCards" class="foreign-cards-grid"></div>
           </div>
@@ -139,27 +175,27 @@
           <!-- CHARTS ROW -->
           <div class="charts-row">
 
-            <!-- Donut: spending by category -->
+            <!-- Donut: spending by category (the "pie chart") -->
             <div class="chart-panel">
               <div class="chart-panel-header">
-                <span class="chart-panel-title">🏷️ Kategori</span>
-                <span class="chart-panel-sub">Pengeluaran</span>
+                <span class="chart-panel-title" data-i18n="chart_category">🏷️ Kategori</span>
+                <span class="chart-panel-sub" data-i18n="chart_category_sub">Pengeluaran</span>
               </div>
               <div class="chart-panel-body donut-wrap">
                 <canvas id="catChart"></canvas>
-                <p id="catChartEmpty" class="chart-empty hidden">Belum ada data</p>
+                <p id="catChartEmpty" class="chart-empty hidden" data-i18n="chart_empty">Belum ada data</p>
               </div>
             </div>
 
             <!-- Bar: monthly income vs expense -->
             <div class="chart-panel chart-panel-wide">
               <div class="chart-panel-header">
-                <span class="chart-panel-title">📈 Bulanan</span>
-                <span class="chart-panel-sub">Pemasukan vs Pengeluaran</span>
+                <span class="chart-panel-title" data-i18n="chart_monthly">📈 Bulanan</span>
+                <span class="chart-panel-sub" data-i18n="chart_monthly_sub">Pemasukan vs Pengeluaran</span>
               </div>
               <div class="chart-panel-body bar-wrap">
                 <canvas id="barChart"></canvas>
-                <p id="barChartEmpty" class="chart-empty hidden">Belum ada data</p>
+                <p id="barChartEmpty" class="chart-empty hidden" data-i18n="chart_empty">Belum ada data</p>
               </div>
             </div>
 
@@ -171,41 +207,41 @@
              CATEGORY BREAKDOWN
         ══════════════════════════════════════ -->
         <div class="card" id="add">
-          <h2 class="section-title mb-4">🏷️ Pengeluaran per Kategori</h2>
+          <h2 class="section-title mb-4" data-i18n="category_breakdown_title">🏷️ Pengeluaran per Kategori</h2>
           <div id="categoryBreakdown" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
-          <p id="catEmpty" class="text-sm text-gray-400 hidden">Belum ada pengeluaran.</p>
+          <p id="catEmpty" class="text-sm text-gray-400 hidden" data-i18n="category_empty">Belum ada pengeluaran.</p>
         </div>
 
         <!-- ══════════════════════════════════════
              ADD TRANSACTION FORM
         ══════════════════════════════════════ -->
         <div class="card">
-          <h2 class="section-title">➕ Tambah Transaksi</h2>
+          <h2 class="section-title" data-i18n="add_tx_title">➕ Tambah Transaksi</h2>
           <form id="txForm" class="space-y-4 mt-4" novalidate>
 
             <div class="grid grid-cols-2 gap-3">
               <div class="col-span-2 sm:col-span-1">
-                <label class="form-label">Tanggal</label>
+                <label class="form-label" data-i18n="date">Tanggal</label>
                 <input type="date" id="fDate" class="form-input" required />
               </div>
               <div class="col-span-2 sm:col-span-1">
-                <label class="form-label">Jenis</label>
+                <label class="form-label" data-i18n="type">Jenis</label>
                 <div class="flex rounded-xl overflow-hidden border border-gray-200 h-10">
-                  <button type="button" id="typeIncome"  class="type-btn flex-1 text-sm font-semibold transition-all">↑ Pemasukan</button>
-                  <button type="button" id="typeExpense" class="type-btn flex-1 text-sm font-semibold transition-all">↓ Pengeluaran</button>
+                  <button type="button" id="typeIncome"  class="type-btn flex-1 text-sm font-semibold transition-all" data-i18n="income_btn">↑ Pemasukan</button>
+                  <button type="button" id="typeExpense" class="type-btn flex-1 text-sm font-semibold transition-all" data-i18n="expense_btn">↓ Pengeluaran</button>
                 </div>
               </div>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="form-label">Kategori</label>
+                <label class="form-label" data-i18n="category">Kategori</label>
                 <select id="fCategory" class="form-input" required>
                   <option value="">Pilih…</option>
                 </select>
               </div>
               <div>
-                <label class="form-label">Mata Uang</label>
+                <label class="form-label" data-i18n="currency">Mata Uang</label>
                 <select id="fCurrency" class="form-input">
                   <option value="IDR">IDR – Rupiah</option>
                   <option value="USD">USD – Dollar AS</option>
@@ -219,41 +255,44 @@
             </div>
 
             <div>
-              <label class="form-label">Jumlah</label>
+              <label class="form-label" data-i18n="amount">Jumlah</label>
               <div class="relative">
-                <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#2E7D52"></span>
+                <span id="currencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#E65100"></span>
                 <input type="text" id="fAmount" class="form-input pl-12" placeholder="0" inputmode="decimal" autocomplete="off" required />
               </div>
             </div>
 
             <div>
-              <label class="form-label">Keterangan <span class="text-gray-400 font-normal">(opsional)</span></label>
-              <input type="text" id="fDesc" class="form-input" placeholder="Mis. Gaji bulan Juni…" maxlength="120" />
+              <label class="form-label">
+                <span data-i18n="desc">Keterangan</span>
+                <span class="text-gray-400 font-normal" data-i18n="desc_optional">(opsional)</span>
+              </label>
+              <input type="text" id="fDesc" class="form-input" data-i18n-placeholder="desc_placeholder" placeholder="Mis. Gaji bulan Juni…" maxlength="120" />
             </div>
 
             <div class="flex gap-2 pt-1">
-              <button type="submit" id="btnSubmit" class="btn-primary flex-1">Simpan</button>
-              <button type="button" id="btnCancel" class="btn-ghost hidden">Batal</button>
+              <button type="submit" id="btnSubmit" class="btn-primary flex-1" data-i18n="submit_save">Simpan</button>
+              <button type="button" id="btnCancel" class="btn-ghost hidden" data-i18n="cancel">Batal</button>
             </div>
             <p id="formError" class="text-sm hidden" style="color:#FF6B6B"></p>
           </form>
         </div>
 
         <!-- ══════════════════════════════════════
-             TRANSACTION HISTORY
+             TRANSACTION HISTORY / LIST
         ══════════════════════════════════════ -->
         <div class="card" id="transactions">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-            <h2 class="section-title">🧾 Riwayat Transaksi</h2>
+            <h2 class="section-title" data-i18n="history_title">🧾 Riwayat Transaksi</h2>
             <div class="flex flex-wrap gap-2">
-              <input type="text" id="searchInput" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
+              <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
               <select id="filterType" class="form-input text-sm py-1.5 w-36">
-                <option value="">Semua Jenis</option>
-                <option value="income">Pemasukan</option>
-                <option value="expense">Pengeluaran</option>
+                <option value="" data-i18n="filter_all_type">Semua Jenis</option>
+                <option value="income" data-i18n="income_btn">↑ Pemasukan</option>
+                <option value="expense" data-i18n="expense_btn">↓ Pengeluaran</option>
               </select>
               <select id="filterCurrency" class="form-input text-sm py-1.5 w-32">
-                <option value="">Semua Mata Uang</option>
+                <option value="" data-i18n="filter_all_currency">Semua Mata Uang</option>
                 <option value="IDR">IDR</option>
                 <option value="USD">USD</option>
                 <option value="KRW">KRW</option>
@@ -262,24 +301,24 @@
                 <option value="EUR">EUR</option>
                 <option value="GBP">GBP</option>
               </select>
-              <button id="btnClearAll" class="btn-outline text-sm py-1.5" style="color:#FF6B6B;border-color:#FF6B6B;">Hapus Semua</button>
+              <button id="btnClearAll" class="btn-outline text-sm py-1.5" style="color:#FF6B6B;border-color:#FF6B6B;" data-i18n="clear_all">Hapus Semua</button>
             </div>
           </div>
           <div class="overflow-x-auto rounded-xl">
             <table class="w-full text-sm">
               <thead>
-                <tr class="bg-butter-light text-charcoal">
-                  <th class="px-3 py-2 text-left font-semibold rounded-tl-xl">Tanggal</th>
-                  <th class="px-3 py-2 text-left font-semibold">Jenis</th>
-                  <th class="px-3 py-2 text-left font-semibold">Kategori</th>
-                  <th class="px-3 py-2 text-left font-semibold">Keterangan</th>
-                  <th class="px-3 py-2 text-right font-semibold rounded-tr-xl">Jumlah</th>
-                  <th class="px-3 py-2"></th>
+                <tr class="bg-brand-light text-charcoal">
+                  <th class="px-3 py-2 text-left font-semibold rounded-tl-xl" data-i18n="th_date">Tanggal</th>
+                  <th class="px-3 py-2 text-left font-semibold" data-i18n="th_type">Jenis</th>
+                  <th class="px-3 py-2 text-left font-semibold" data-i18n="th_category">Kategori</th>
+                  <th class="px-3 py-2 text-left font-semibold" data-i18n="th_desc">Keterangan</th>
+                  <th class="px-3 py-2 text-right font-semibold" data-i18n="th_amount">Jumlah</th>
+                  <th class="px-3 py-2 rounded-tr-xl"></th>
                 </tr>
               </thead>
               <tbody id="txTableBody"></tbody>
             </table>
-            <p id="txEmpty" class="text-center text-sm text-gray-400 py-8 hidden">Belum ada transaksi. Yuk, mulai catat! 🎉</p>
+            <p id="txEmpty" class="text-center text-sm text-gray-400 py-8 hidden" data-i18n="tx_empty">Belum ada transaksi. Yuk, mulai catat! 🎉</p>
           </div>
         </div>
 
@@ -298,11 +337,11 @@
   <!-- ── DELETE CONFIRM MODAL ── -->
   <div id="modal" class="fixed inset-0 bg-black/40 z-50 items-center justify-center p-4">
     <div class="bg-white rounded-2xl shadow-pop max-w-sm w-full p-6 space-y-4">
-      <h3 class="text-lg font-bold">Hapus Transaksi?</h3>
-      <p class="text-sm text-gray-500">Tindakan ini tidak bisa dibatalkan.</p>
+      <h3 class="text-lg font-bold" data-i18n="modal_title">Hapus Transaksi?</h3>
+      <p class="text-sm text-gray-500" data-i18n="modal_sub">Tindakan ini tidak bisa dibatalkan.</p>
       <div class="flex gap-3 justify-end">
-        <button id="modalCancel" class="btn-ghost">Batal</button>
-        <button id="modalConfirm" class="btn-danger">Hapus</button>
+        <button id="modalCancel" class="btn-ghost" data-i18n="modal_cancel">Batal</button>
+        <button id="modalConfirm" class="btn-danger" data-i18n="modal_confirm">Hapus</button>
       </div>
     </div>
   </div>
