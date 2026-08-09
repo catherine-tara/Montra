@@ -47,9 +47,9 @@ const CATEGORIES = {
 
 // Consistent colour palette for categories (brand orange leads, then accents)
 const CAT_COLORS = [
-  '#8B5CF6', '#FF6FA0', '#2DD4BF', '#C084FC', '#F472B6',
-  '#5EEAD4', '#A78BFA', '#FDA4AF', '#34D399', '#60A5FA',
-  '#FBBF24', '#94A3B8',
+  '#2EC4B6', '#FF6FA0', '#5EEAD4', '#F472B6', '#0F9488',
+  '#FDA4AF', '#34D399', '#C084FC', '#60A5FA', '#FBBF24',
+  '#A78BFA', '#94A3B8',
 ];
 
 // ═══════════════════════════════════════════════════════════════
