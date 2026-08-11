@@ -664,6 +664,21 @@ body {
 }
 .btn-danger:hover { background-color: #C0392B; }
 
+.btn-success {
+  background-color: #4CAF7D;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.7rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+.btn-success:hover { background-color: #2E7D52; }
+.btn-success:active { transform: scale(0.96); }
+
 /* ═══════════════════════════════════════════════════
    FORM INPUTS
 ═══════════════════════════════════════════════════ */
@@ -833,6 +848,281 @@ input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; marg
 input[type="number"] { -moz-appearance: textfield; }
 
 /* ═══════════════════════════════════════════════════
+   SPLIT BILL – people chips
+═══════════════════════════════════════════════════ */
+.people-add-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.people-add-row .form-input { flex: 1; }
+.people-add-row .btn-primary { flex: 0 0 auto; }
+
+.people-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.person-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f7f8fa;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 0.3rem 0.4rem 0.3rem 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #2D3436;
+}
+.avatar-chip {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.person-chip-del {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  font-size: 0.9rem;
+  line-height: 1;
+  padding: 0 0.15rem;
+  border-radius: 50%;
+  transition: color 0.12s, background 0.12s;
+}
+.person-chip-del:hover { color: #C0392B; background: #FFE0E0; }
+
+/* ═══════════════════════════════════════════════════
+   SPLIT BILL – bill form
+═══════════════════════════════════════════════════ */
+.bill-total-preview {
+  background: #f7f8fa;
+  border-radius: 0.85rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.bill-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #57606a;
+  font-weight: 600;
+}
+.bill-total-row-final {
+  border-top: 1px dashed #e5e7eb;
+  margin-top: 0.2rem;
+  padding-top: 0.45rem;
+  font-size: 0.95rem;
+  color: #2D3436;
+  font-weight: 800;
+}
+
+.participants-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.participant-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: #f7f8fa;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.75rem;
+}
+.participant-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  cursor: pointer;
+}
+.participant-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2EC4B6;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+.participant-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #2D3436;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.participant-row.is-unchecked { opacity: 0.5; }
+.participant-share {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0F9488;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+.participant-custom-input {
+  width: 110px;
+  flex: 0 0 auto;
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  display: none;
+}
+.participants-list.mode-custom .participant-share { display: none; }
+.participants-list.mode-custom .participant-custom-input { display: block; }
+
+/* ═══════════════════════════════════════════════════
+   SPLIT BILL – bills list
+═══════════════════════════════════════════════════ */
+.bills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.bill-row {
+  background: #f7f8fa;
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.bill-row-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.bill-row-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #2D3436;
+}
+.bill-row-date {
+  font-size: 0.68rem;
+  color: #9ca3af;
+  font-weight: 600;
+  margin-top: 0.1rem;
+}
+.bill-row-total {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0F9488;
+  white-space: nowrap;
+}
+.bill-row-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: #57606a;
+}
+.bill-paidby-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #D9F7EF;
+  color: #0F9488;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+}
+.bill-participants-mini {
+  display: flex;
+  align-items: center;
+  gap: -0.25rem;
+}
+.bill-participants-mini .avatar-chip {
+  margin-left: -0.4rem;
+  border: 2px solid #f7f8fa;
+}
+.bill-participants-mini .avatar-chip:first-child { margin-left: 0; }
+.bill-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+.bill-row-breakdown {
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 0.45rem;
+  margin-top: 0.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.bill-breakdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #57606a;
+}
+.bill-breakdown-item b { color: #2D3436; }
+
+/* ═══════════════════════════════════════════════════
+   SPLIT BILL – settlement list
+═══════════════════════════════════════════════════ */
+.settle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.settle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: #FFF3C4;
+  border-radius: 1rem;
+  padding: 0.7rem 0.9rem;
+}
+.settle-flow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #7A5B00;
+}
+.settle-flow .arrow { color: #E6B800; font-size: 0.9rem; }
+.settle-amount {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #7A5B00;
+  white-space: nowrap;
+}
+.settle-currency-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.settle-currency-label {
+  font-size: 0.66rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #9ca3af;
+  margin-top: 0.4rem;
+}
+.settle-currency-label:first-child { margin-top: 0; }
+
+/* ═══════════════════════════════════════════════════
    RESPONSIVE  –  sidebar becomes off-canvas drawer
 ═══════════════════════════════════════════════════ */
 @media (max-width: 720px) {
@@ -890,6 +1180,10 @@ input[type="number"] { -moz-appearance: textfield; }
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   }
   .card { padding: 1.1rem; }
+
+  .bill-row-top { flex-direction: column; }
+  .settle-row { flex-direction: column; align-items: stretch; }
+  .settle-amount { text-align: right; }
 }
 
 @media (max-width: 400px) {
