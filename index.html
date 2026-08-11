@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=10" />
+  <link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body class="bg-cream font-sans text-charcoal min-h-screen">
 
@@ -77,6 +77,10 @@
         <a href="#splitbill" class="sidebar-link" data-nav="splitbill">
           <span class="nav-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
           <span data-i18n="nav_splitbill">Split Bill</span>
+        </a>
+        <a href="#lunas" class="sidebar-link" data-nav="lunas">
+          <span class="nav-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <span data-i18n="nav_lunas">Riwayat Lunas</span>
         </a>
       </nav>
 
@@ -258,7 +262,7 @@
         <section id="transactions" class="dashboard-panel view-panel">
 
           <div class="card">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
               <h2 class="section-title"><span class="title-chip" style="background:#D9F7EF">🧾</span><span data-i18n="history_title">Riwayat Transaksi</span></h2>
               <div class="flex flex-wrap gap-2">
                 <input type="text" id="searchInput" data-i18n-placeholder="search_placeholder" placeholder="🔍 Cari…" class="form-input text-sm w-40 py-1.5" />
@@ -280,6 +284,19 @@
                 <button id="btnClearAll" class="btn-outline text-sm py-1.5" style="color:#FF6B6B;border-color:#FF6B6B;" data-i18n="clear_all">Hapus Semua</button>
               </div>
             </div>
+
+            <div class="flex flex-wrap items-center gap-2 mb-4 tx-period-row">
+              <label class="tx-period-label" data-i18n="filter_month">Bulan</label>
+              <input type="month" id="filterMonth" class="form-input text-sm py-1.5 w-40" />
+              <span class="tx-period-or" data-i18n="filter_or">atau</span>
+              <label class="tx-period-label" data-i18n="filter_from">Dari</label>
+              <input type="date" id="filterFrom" class="form-input text-sm py-1.5 w-36" />
+              <label class="tx-period-label" data-i18n="filter_to">Sampai</label>
+              <input type="date" id="filterTo" class="form-input text-sm py-1.5 w-36" />
+              <button id="btnShowAllMonths" type="button" class="btn-outline text-sm py-1.5" data-i18n="show_all_months">Semua Waktu</button>
+              <button id="btnExportFiltered" type="button" class="btn-outline text-sm py-1.5" style="margin-left:auto" data-i18n="export_filtered_btn">📤 Export Hasil Ini</button>
+            </div>
+
             <div class="overflow-x-auto rounded-xl">
               <table class="w-full text-sm">
                 <thead>
@@ -446,7 +463,27 @@
             <p id="settleEmpty" class="text-sm text-gray-400 hidden" data-i18n="settle_empty">Semua sudah lunas! 🎉</p>
           </div>
 
+          <!-- Riwayat Pelunasan (settlement history — undo a mistaken "Sudah Bayar") -->
+          <div class="card">
+            <h2 class="section-title mb-1"><span class="title-chip" style="background:#EDE7FE">🧾</span><span data-i18n="settlement_history_title">Riwayat Pelunasan</span></h2>
+            <p class="text-xs text-gray-400 mb-4" data-i18n="settlement_history_sub">Semua yang sudah ditandai "Sudah Bayar" — hapus di sini kalau ada yang salah tandai</p>
+            <div id="settlementHistoryList" class="settle-list"></div>
+            <p id="settlementHistoryEmpty" class="text-sm text-gray-400 hidden" data-i18n="settlement_history_empty">Belum ada riwayat pelunasan.</p>
+          </div>
+
         </section><!-- /splitbill -->
+
+        <!-- ══════════════════════════════════════
+             RIWAYAT LUNAS  (split bills marked settled)
+        ══════════════════════════════════════ -->
+        <section id="lunas" class="dashboard-panel view-panel">
+          <div class="card">
+            <h2 class="section-title mb-1"><span class="title-chip" style="background:#D6F5E3">✅</span><span data-i18n="lunas_title">Riwayat Split Bill Lunas</span></h2>
+            <p class="text-xs text-gray-400 mb-4" data-i18n="lunas_sub">Split bill yang sudah ditandai lunas, dipindah ke sini biar daftar utama tetap ringkas</p>
+            <div id="lunasList" class="bills-list"></div>
+            <p id="lunasEmpty" class="text-sm text-gray-400 hidden" data-i18n="lunas_empty">Belum ada split bill yang ditandai lunas.</p>
+          </div>
+        </section><!-- /lunas -->
 
         <!-- FOOTER -->
         <footer class="content-footer">
@@ -472,6 +509,41 @@
     </div>
   </div>
 
-  <script src="script.js?v=10"></script>
+  <!-- ── EXPORT SCOPE MODAL ── -->
+  <div id="exportModal" class="fixed inset-0 bg-black/40 z-50 items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-pop max-w-sm w-full p-6 space-y-4">
+      <h3 class="text-lg font-bold" data-i18n="export_modal_title">Export Transaksi</h3>
+      <p class="text-sm text-gray-500" data-i18n="export_modal_sub">Pilih data yang mau diekspor ke CSV.</p>
+
+      <div class="space-y-3">
+        <label class="export-radio-row">
+          <input type="radio" name="exportScope" id="exportScopeAll" checked />
+          <span data-i18n="export_scope_all">Semua Data</span>
+        </label>
+
+        <label class="export-radio-row">
+          <input type="radio" name="exportScope" id="exportScopeMonth" />
+          <span data-i18n="export_scope_month">Pilih Bulan</span>
+        </label>
+        <input type="month" id="exportMonthInput" class="form-input text-sm export-sub-input" />
+
+        <label class="export-radio-row">
+          <input type="radio" name="exportScope" id="exportScopeRange" />
+          <span data-i18n="export_scope_range">Rentang Tanggal</span>
+        </label>
+        <div class="flex gap-2 export-sub-input">
+          <input type="date" id="exportFromInput" class="form-input text-sm" data-i18n-placeholder="filter_from" />
+          <input type="date" id="exportToInput" class="form-input text-sm" data-i18n-placeholder="filter_to" />
+        </div>
+      </div>
+
+      <div class="flex gap-3 justify-end">
+        <button id="exportModalCancel" class="btn-ghost" data-i18n="cancel">Batal</button>
+        <button id="exportModalConfirm" class="btn-primary" data-i18n="export_confirm_btn">📤 Export</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js?v=15"></script>
 </body>
 </html>
