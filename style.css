@@ -831,6 +831,32 @@ input[type="date"].form-input { cursor: pointer; }
 ═══════════════════════════════════════════════════ */
 #modal          { display: none; }
 #modal.open     { display: flex; }
+#exportModal      { display: none; }
+#exportModal.open { display: flex; }
+#modal > div, #exportModal > div {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.export-radio-row {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2D3436;
+  cursor: pointer;
+}
+.export-radio-row input[type="radio"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2EC4B6;
+  cursor: pointer;
+}
+.export-sub-input {
+  margin-left: 1.6rem;
+  margin-top: -0.35rem;
+}
 
 /* ═══════════════════════════════════════════════════
    SCROLLBAR
@@ -846,6 +872,26 @@ input[type="date"].form-input { cursor: pointer; }
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 input[type="number"] { -moz-appearance: textfield; }
+
+/* ═══════════════════════════════════════════════════
+   TRANSACTIONS – period filter row
+═══════════════════════════════════════════════════ */
+.tx-period-row {
+  border-top: 1px dashed #e5e7eb;
+  padding-top: 0.75rem;
+}
+.tx-period-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tx-period-or {
+  font-size: 0.7rem;
+  color: #c4cad2;
+  font-style: italic;
+}
 
 /* ═══════════════════════════════════════════════════
    SPLIT BILL – people chips
@@ -900,6 +946,17 @@ input[type="number"] { -moz-appearance: textfield; }
   transition: color 0.12s, background 0.12s;
 }
 .person-chip-del:hover { color: #C0392B; background: #FFE0E0; }
+
+.person-chip.is-self {
+  background: #D9F7EF;
+  border-color: #2EC4B6;
+}
+.person-self-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #0F9488;
+  opacity: 0.8;
+}
 
 /* ═══════════════════════════════════════════════════
    SPLIT BILL – bill form
@@ -1057,6 +1114,18 @@ input[type="number"] { -moz-appearance: textfield; }
   gap: 0.35rem;
   margin-left: auto;
 }
+.bill-row.is-settled { opacity: 0.85; }
+.bill-lunas-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: #D6F5E3;
+  color: #2E7D52;
+  font-weight: 700;
+  padding: 0.15rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+}
 .bill-row-breakdown {
   border-top: 1px dashed #e5e7eb;
   padding-top: 0.45rem;
@@ -1073,6 +1142,8 @@ input[type="number"] { -moz-appearance: textfield; }
   color: #57606a;
 }
 .bill-breakdown-item b { color: #2D3436; }
+.bill-breakdown-item.is-paid { opacity: 0.55; }
+.bill-breakdown-item.is-paid b { text-decoration: line-through; }
 
 /* ═══════════════════════════════════════════════════
    SPLIT BILL – settlement list
