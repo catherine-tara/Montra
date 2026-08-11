@@ -4,8 +4,11 @@
 // ═══════════════════════════════════════════════════════════════
 // CONSTANTS
 // ═══════════════════════════════════════════════════════════════
-const STORAGE_KEY  = 'montra_transactions';
-const SETTINGS_KEY = 'montra_settings';
+const STORAGE_KEY      = 'montra_transactions';
+const SETTINGS_KEY     = 'montra_settings';
+const PEOPLE_KEY       = 'montra_people';
+const SPLITBILLS_KEY   = 'montra_splitbills';
+const SETTLEMENTS_KEY  = 'montra_settlements';
 
 const CURRENCIES = {
   IDR: { symbol: 'Rp',  locale: 'id-ID', fractionDigits: 0 },
@@ -60,6 +63,7 @@ const I18N = {
     tagline: 'Keuangan Pribadi',
     nav_dashboard: 'Dashboard',
     nav_transactions: 'Riwayat Transaksi',
+    nav_splitbill: 'Split Bill',
     nav_add: 'Tambah',
     import: 'Import',
     export: 'Export',
@@ -136,11 +140,56 @@ const I18N = {
     greeting_hello: name => (name ? `Hai, ${name}! 👋` : 'Hai! 👋'),
     greeting_has_tx: 'Semangat terus catat keuanganmu, sedikit demi sedikit ✨',
     greeting_no_tx: 'Belum ada transaksi. Yuk mulai catat hari ini! 🚀',
+
+    // ── Split Bill ──
+    people_title: 'Teman',
+    people_sub: 'Tambahkan orang yang biasa split bill sama kamu',
+    person_placeholder: 'Nama teman…',
+    add: 'Tambah',
+    people_empty: 'Belum ada teman. Tambahkan dulu ya!',
+    person_delete_confirm: name => `Hapus "${name}" dari daftar teman?`,
+    person_name_alert: 'Masukkan nama teman terlebih dahulu.',
+    person_exists_alert: 'Nama itu sudah ada di daftar teman.',
+    add_bill_title: 'Tambah Split Bill',
+    bill_title_label: 'Judul',
+    bill_title_placeholder: 'Mis. Makan malam di…',
+    paid_by: 'Dibayar Oleh',
+    subtotal_label: 'Subtotal (sebelum pajak)',
+    subtotal_short: 'Subtotal',
+    tax_label: 'Pajak / PPN (%)',
+    tax_short: 'Pajak',
+    service_label: 'Service Charge (%)',
+    service_short: 'Service',
+    total_label: 'Total',
+    split_mode_label: 'Metode Split',
+    split_equal: 'Rata',
+    split_custom: 'Custom',
+    participants_label: 'Peserta / Split Ke',
+    participants_empty: 'Tambahkan teman terlebih dahulu di atas.',
+    custom_sum_hint: (sum, total, currency) => `Total custom: ${formatAmount(sum, currency)} — Saran total: ${formatAmount(total, currency)}`,
+    bill_list_title: 'Daftar Split Bill',
+    bills_empty: 'Belum ada split bill.',
+    settle_title: 'Ringkasan & Pelunasan',
+    settle_sub: 'Gabungan saldo dari semua split bill di atas',
+    settle_empty: 'Semua sudah lunas! 🎉',
+    settle_pay_btn: '✅ Sudah Bayar',
+    settle_arrow_label: name => `bayar ke ${name}`,
+    err_bill_paidby: 'Pilih siapa yang bayar.',
+    err_bill_subtotal: 'Subtotal harus lebih dari 0.',
+    err_bill_participants: 'Pilih minimal 1 peserta.',
+    err_bill_custom_sum: 'Isi nominal untuk setiap peserta yang dipilih.',
+    toast_bill_saved: '✅ Split bill berhasil disimpan!',
+    toast_bill_updated: '✏️ Split bill berhasil diperbarui!',
+    toast_bill_deleted: '🗑️ Split bill dihapus.',
+    toast_settled: '✅ Pelunasan dicatat!',
+    bill_delete_confirm: 'Hapus split bill ini? Tindakan ini tidak bisa dibatalkan.',
+    paid_by_pill: name => `💰 ${name} bayar`,
   },
   en: {
     tagline: 'Personal Finance',
     nav_dashboard: 'Dashboard',
     nav_transactions: 'Transaction History',
+    nav_splitbill: 'Split Bill',
     nav_add: 'Add',
     import: 'Import',
     export: 'Export',
@@ -217,6 +266,50 @@ const I18N = {
     greeting_hello: name => (name ? `Hi, ${name}! 👋` : 'Hi there! 👋'),
     greeting_has_tx: 'Keep tracking your money, step by step ✨',
     greeting_no_tx: 'No transactions yet. Start today! 🚀',
+
+    // ── Split Bill ──
+    people_title: 'Friends',
+    people_sub: 'Add people you usually split bills with',
+    person_placeholder: 'Friend\'s name…',
+    add: 'Add',
+    people_empty: 'No friends yet. Add one first!',
+    person_delete_confirm: name => `Remove "${name}" from your friends list?`,
+    person_name_alert: 'Please enter a name first.',
+    person_exists_alert: 'That name is already in your friends list.',
+    add_bill_title: 'Add Split Bill',
+    bill_title_label: 'Title',
+    bill_title_placeholder: 'E.g. Dinner at…',
+    paid_by: 'Paid By',
+    subtotal_label: 'Subtotal (before tax)',
+    subtotal_short: 'Subtotal',
+    tax_label: 'Tax / VAT (%)',
+    tax_short: 'Tax',
+    service_label: 'Service Charge (%)',
+    service_short: 'Service',
+    total_label: 'Total',
+    split_mode_label: 'Split Method',
+    split_equal: 'Equal',
+    split_custom: 'Custom',
+    participants_label: 'Participants / Split With',
+    participants_empty: 'Add friends first, above.',
+    custom_sum_hint: (sum, total, currency) => `Custom total: ${formatAmount(sum, currency)} — Suggested total: ${formatAmount(total, currency)}`,
+    bill_list_title: 'Split Bill List',
+    bills_empty: 'No split bills yet.',
+    settle_title: 'Summary & Settle Up',
+    settle_sub: 'Combined balance across all split bills above',
+    settle_empty: 'All settled up! 🎉',
+    settle_pay_btn: '✅ Mark Paid',
+    settle_arrow_label: name => `pays ${name}`,
+    err_bill_paidby: 'Please choose who paid.',
+    err_bill_subtotal: 'Subtotal must be greater than 0.',
+    err_bill_participants: 'Choose at least 1 participant.',
+    err_bill_custom_sum: 'Enter an amount for every selected participant.',
+    toast_bill_saved: '✅ Split bill saved!',
+    toast_bill_updated: '✏️ Split bill updated!',
+    toast_bill_deleted: '🗑️ Split bill deleted.',
+    toast_settled: '✅ Payment recorded!',
+    bill_delete_confirm: 'Delete this split bill? This cannot be undone.',
+    paid_by_pill: name => `💰 ${name} paid`,
   },
 };
 
@@ -240,6 +333,14 @@ let transactions = [];
 let editingId     = null;
 let pendingDelId  = null;
 let settings      = { userName: '', language: 'id' };
+
+// Split bill state
+let people        = [];   // [{ id, name }]
+let splitBills    = [];   // [{ id, title, date, currency, paidBy, subtotal, taxPct, servicePct,
+                           //    taxAmt, serviceAmt, total, splitMode, participantIds, customShares, createdAt }]
+let settlements   = [];   // [{ id, fromId, toId, amount, currency, date, createdAt }]
+let editingBillId = null;
+let billSplitMode = 'equal'; // 'equal' | 'custom'
 
 // ═══════════════════════════════════════════════════════════════
 // UTILS
@@ -315,6 +416,42 @@ function loadSettings() {
   }
 }
 
+function savePeople() {
+  localStorage.setItem(PEOPLE_KEY, JSON.stringify(people));
+}
+function loadPeople() {
+  try {
+    const raw = localStorage.getItem(PEOPLE_KEY);
+    people = raw ? JSON.parse(raw) : [];
+  } catch {
+    people = [];
+  }
+}
+
+function saveSplitBills() {
+  localStorage.setItem(SPLITBILLS_KEY, JSON.stringify(splitBills));
+}
+function loadSplitBills() {
+  try {
+    const raw = localStorage.getItem(SPLITBILLS_KEY);
+    splitBills = raw ? JSON.parse(raw) : [];
+  } catch {
+    splitBills = [];
+  }
+}
+
+function saveSettlements() {
+  localStorage.setItem(SETTLEMENTS_KEY, JSON.stringify(settlements));
+}
+function loadSettlements() {
+  try {
+    const raw = localStorage.getItem(SETTLEMENTS_KEY);
+    settlements = raw ? JSON.parse(raw) : [];
+  } catch {
+    settlements = [];
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════
 // I18N APPLICATION
 // ═══════════════════════════════════════════════════════════════
@@ -336,6 +473,11 @@ function applyTranslations() {
   const btnSubmit = document.getElementById('btnSubmit');
   if (btnSubmit) {
     btnSubmit.textContent = editingId ? t('submit_update') : t('submit_save');
+  }
+
+  const btnBillSubmit = document.getElementById('btnBillSubmit');
+  if (btnBillSubmit) {
+    btnBillSubmit.textContent = editingBillId ? t('submit_update') : t('submit_save');
   }
 
   populateCategories(document.getElementById('fCategory')?.value || '');
@@ -402,7 +544,8 @@ function formatAmountInput(num, currencyCode) {
   return `${intFormatted},${fracPart}`;
 }
 
-function handleAmountInput(e) {
+// Generic live-formatting handler for a text amount input tied to a currency <select>.
+function handleAmountInputGeneric(e, currencySelectId) {
   const input = e.target;
   const selStart = input.selectionStart;
   const before   = input.value;
@@ -410,7 +553,7 @@ function handleAmountInput(e) {
   let cleaned = before.replace(/[^\d.,]/g, '');
 
   const raw  = parseAmountInput(cleaned);
-  const code = document.getElementById('fCurrency').value;
+  const code = document.getElementById(currencySelectId).value;
   const cfg  = CURRENCIES[code] || CURRENCIES.IDR;
 
   if (raw > 0) {
@@ -440,12 +583,15 @@ function handleAmountInput(e) {
   }
 }
 
-function handleAmountBlur(e) {
+function handleAmountBlurGeneric(e, currencySelectId) {
   const input = e.target;
   const raw   = parseAmountInput(input.value);
-  const code  = document.getElementById('fCurrency').value;
+  const code  = document.getElementById(currencySelectId).value;
   input.value = raw > 0 ? formatAmountInput(raw, code) : '';
 }
+
+function handleAmountInput(e) { handleAmountInputGeneric(e, 'fCurrency'); }
+function handleAmountBlur(e) { handleAmountBlurGeneric(e, 'fCurrency'); }
 
 function handleCurrencyChangeAmount() {
   updateCurrencyPrefix();
@@ -885,6 +1031,7 @@ function renderAll() {
   renderTable();
   renderCategoryBreakdown();
   renderChart();
+  renderSplitBill();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1045,6 +1192,506 @@ function parseCSVLine(line) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – people (friends)
+// ═══════════════════════════════════════════════════════════════
+function personName(pid) {
+  const p = people.find(p => p.id === pid);
+  return p ? p.name : (settings.language === 'en' ? '(removed)' : '(dihapus)');
+}
+
+function personInitials(name) {
+  const parts = String(name).trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return '?';
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
+function personColor(pid) {
+  let hash = 0;
+  const s = String(pid);
+  for (let i = 0; i < s.length; i++) hash = s.charCodeAt(i) + ((hash << 5) - hash);
+  return CAT_COLORS[Math.abs(hash) % CAT_COLORS.length];
+}
+
+function addPerson(name) {
+  const trimmed = name.trim();
+  if (!trimmed) { alert(t('person_name_alert')); return false; }
+  if (people.some(p => p.name.toLowerCase() === trimmed.toLowerCase())) {
+    alert(t('person_exists_alert'));
+    return false;
+  }
+  people.push({ id: uid(), name: trimmed });
+  savePeople();
+  renderSplitBill();
+  return true;
+}
+
+function deletePerson(id) {
+  const p = people.find(p => p.id === id);
+  if (!p) return;
+  if (!confirm(t('person_delete_confirm', p.name))) return;
+  people = people.filter(p => p.id !== id);
+  savePeople();
+  renderSplitBill();
+}
+
+function renderPeopleList() {
+  const el    = document.getElementById('peopleList');
+  const empty = document.getElementById('peopleEmpty');
+  if (!el) return;
+
+  if (people.length === 0) {
+    el.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  el.innerHTML = people.map(p => `
+    <span class="person-chip" data-id="${p.id}">
+      <span class="avatar-chip" style="background:${personColor(p.id)}">${personInitials(p.name)}</span>
+      ${escHtml(p.name)}
+      <button type="button" class="person-chip-del" data-id="${p.id}" title="Hapus">&times;</button>
+    </span>`).join('');
+}
+
+function renderPaidBySelect() {
+  const sel = document.getElementById('bPaidBy');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = `<option value="">${t('choose')}</option>` +
+    people.map(p => `<option value="${p.id}">${escHtml(p.name)}</option>`).join('');
+  if (people.some(p => p.id === current)) sel.value = current;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – form: totals + participants
+// ═══════════════════════════════════════════════════════════════
+function getBillFormTotals() {
+  const subtotal   = parseAmountInput(document.getElementById('bSubtotal').value);
+  const taxPct     = parseFloat(document.getElementById('bTaxPct').value) || 0;
+  const servicePct = parseFloat(document.getElementById('bServicePct').value) || 0;
+  const taxAmt     = subtotal * (taxPct / 100);
+  const serviceAmt = subtotal * (servicePct / 100);
+  const total      = subtotal + taxAmt + serviceAmt;
+  return { subtotal, taxPct, servicePct, taxAmt, serviceAmt, total };
+}
+
+function updateBillTotalPreview() {
+  const currency = document.getElementById('bCurrency').value;
+  const { subtotal, taxAmt, serviceAmt, total } = getBillFormTotals();
+  document.getElementById('bSubtotalPreview').textContent = formatAmount(subtotal, currency);
+  document.getElementById('bTaxPreview').textContent      = formatAmount(taxAmt, currency);
+  document.getElementById('bServicePreview').textContent  = formatAmount(serviceAmt, currency);
+  document.getElementById('bTotalPreview').textContent    = formatAmount(total, currency);
+  updateParticipantsPreview();
+}
+
+function setBillSplitMode(mode) {
+  billSplitMode = mode;
+  const eqBtn  = document.getElementById('splitEqual');
+  const cusBtn = document.getElementById('splitCustom');
+  eqBtn.classList.toggle('active-income', mode === 'equal');
+  cusBtn.classList.toggle('active-expense', mode === 'custom');
+  document.getElementById('participantsList').classList.toggle('mode-custom', mode === 'custom');
+  updateParticipantsPreview();
+}
+
+function getCheckedParticipantIds() {
+  return Array.from(document.querySelectorAll('#participantsList .participantChk:checked')).map(cb => cb.value);
+}
+
+function renderParticipantsList(preselectedIds = null, customValues = null) {
+  const wrap  = document.getElementById('participantsList');
+  const empty = document.getElementById('participantsEmpty');
+  if (!wrap) return;
+
+  if (people.length === 0) {
+    wrap.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const checkedSet = preselectedIds ? new Set(preselectedIds) : null;
+
+  wrap.innerHTML = people.map(p => {
+    const checked = checkedSet ? checkedSet.has(p.id) : true;
+    const customVal = customValues && customValues[p.id] !== undefined
+      ? formatAmountInput(customValues[p.id], document.getElementById('bCurrency').value)
+      : '';
+    return `
+      <div class="participant-row ${checked ? '' : 'is-unchecked'}" data-person="${p.id}">
+        <label class="participant-check">
+          <input type="checkbox" class="participantChk" value="${p.id}" ${checked ? 'checked' : ''} />
+          <span class="avatar-chip" style="background:${personColor(p.id)}">${personInitials(p.name)}</span>
+          <span class="participant-name">${escHtml(p.name)}</span>
+        </label>
+        <span class="participant-share" data-person="${p.id}">—</span>
+        <input type="text" class="form-input participant-custom-input" data-person="${p.id}"
+               inputmode="decimal" autocomplete="off" placeholder="0" value="${customVal}" />
+      </div>`;
+  }).join('');
+
+  wrap.classList.toggle('mode-custom', billSplitMode === 'custom');
+  updateParticipantsPreview();
+}
+
+function updateParticipantsPreview() {
+  const wrap = document.getElementById('participantsList');
+  if (!wrap) return;
+  const currency = document.getElementById('bCurrency').value;
+  const { total } = getBillFormTotals();
+  const checkedIds = getCheckedParticipantIds();
+
+  wrap.querySelectorAll('.participant-row').forEach(row => {
+    const pid = row.dataset.person;
+    row.classList.toggle('is-unchecked', !checkedIds.includes(pid));
+  });
+
+  if (billSplitMode === 'equal') {
+    const n = checkedIds.length || 1;
+    const per = total / n;
+    wrap.querySelectorAll('.participant-share').forEach(el => {
+      const pid = el.dataset.person;
+      el.textContent = checkedIds.includes(pid) ? formatAmount(per, currency) : '—';
+    });
+    document.getElementById('customSumHint').classList.add('hidden');
+  } else {
+    let sum = 0;
+    wrap.querySelectorAll('.participant-custom-input').forEach(input => {
+      const pid = input.dataset.person;
+      if (checkedIds.includes(pid)) sum += parseAmountInput(input.value);
+    });
+    const hint = document.getElementById('customSumHint');
+    hint.textContent = t('custom_sum_hint', sum, total, currency);
+    hint.classList.remove('hidden');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – compute shares / CRUD
+// ═══════════════════════════════════════════════════════════════
+function computeBillShares(bill) {
+  if (bill.splitMode === 'custom' && bill.customShares) {
+    return { ...bill.customShares };
+  }
+  const n = bill.participantIds.length || 1;
+  const per = bill.total / n;
+  const shares = {};
+  bill.participantIds.forEach(pid => { shares[pid] = per; });
+  return shares;
+}
+
+function resetBillForm() {
+  editingBillId = null;
+  document.getElementById('billForm').reset();
+  document.getElementById('bDate').value = today();
+  document.getElementById('bTaxPct').value = 11;
+  document.getElementById('bServicePct').value = 0;
+  document.getElementById('bSubtotal').value = '';
+  setBillSplitMode('equal');
+  renderPaidBySelect();
+  renderParticipantsList();
+  updateBillTotalPreview();
+  document.getElementById('btnBillSubmit').textContent = t('submit_save');
+  document.getElementById('btnBillCancel').classList.add('hidden');
+  clearBillFormError();
+}
+
+function showBillFormError(msg) {
+  const el = document.getElementById('billFormError');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+}
+function clearBillFormError() {
+  const el = document.getElementById('billFormError');
+  el.textContent = '';
+  el.classList.add('hidden');
+}
+
+function handleBillFormSubmit(e) {
+  e.preventDefault();
+  clearBillFormError();
+
+  const title       = document.getElementById('bTitle').value.trim();
+  const date        = document.getElementById('bDate').value.trim();
+  const currency    = document.getElementById('bCurrency').value;
+  const paidBy      = document.getElementById('bPaidBy').value;
+  const { subtotal, taxPct, servicePct, taxAmt, serviceAmt, total } = getBillFormTotals();
+  const participantIds = getCheckedParticipantIds();
+
+  if (!date) return showBillFormError(t('err_date'));
+  if (!paidBy) return showBillFormError(t('err_bill_paidby'));
+  if (!subtotal || subtotal <= 0) return showBillFormError(t('err_bill_subtotal'));
+  if (participantIds.length === 0) return showBillFormError(t('err_bill_participants'));
+
+  let splitMode = billSplitMode;
+  let customShares = null;
+  let finalTotal = total;
+
+  if (splitMode === 'custom') {
+    customShares = {};
+    let sum = 0;
+    let ok = true;
+    document.querySelectorAll('#participantsList .participant-custom-input').forEach(input => {
+      const pid = input.dataset.person;
+      if (!participantIds.includes(pid)) return;
+      const val = parseAmountInput(input.value);
+      if (!val || val <= 0) ok = false;
+      customShares[pid] = val;
+      sum += val;
+    });
+    if (!ok || Object.keys(customShares).length === 0) {
+      return showBillFormError(t('err_bill_custom_sum'));
+    }
+    finalTotal = sum;
+  }
+
+  const data = {
+    title, date, currency, paidBy,
+    subtotal, taxPct, servicePct, taxAmt, serviceAmt,
+    total: finalTotal,
+    splitMode, participantIds, customShares,
+  };
+
+  if (editingBillId) {
+    const idx = splitBills.findIndex(b => b.id === editingBillId);
+    if (idx !== -1) splitBills[idx] = { ...splitBills[idx], ...data };
+    saveSplitBills();
+    renderSplitBill();
+    showToast(t('toast_bill_updated'));
+  } else {
+    splitBills.unshift({ ...data, id: uid(), createdAt: Date.now() });
+    saveSplitBills();
+    renderSplitBill();
+    showToast(t('toast_bill_saved'));
+  }
+  resetBillForm();
+}
+
+function startEditBill(id) {
+  const bill = splitBills.find(b => b.id === id);
+  if (!bill) return;
+
+  editingBillId = id;
+  document.getElementById('bTitle').value    = bill.title || '';
+  document.getElementById('bDate').value     = bill.date;
+  document.getElementById('bCurrency').value = bill.currency;
+  document.getElementById('bSubtotal').value = formatAmountInput(bill.subtotal, bill.currency);
+  document.getElementById('bTaxPct').value   = bill.taxPct;
+  document.getElementById('bServicePct').value = bill.servicePct;
+
+  renderPaidBySelect();
+  document.getElementById('bPaidBy').value = bill.paidBy;
+
+  setBillSplitMode(bill.splitMode || 'equal');
+  renderParticipantsList(bill.participantIds, bill.splitMode === 'custom' ? bill.customShares : null);
+  updateBillTotalPreview();
+
+  document.getElementById('btnBillSubmit').textContent = t('submit_update');
+  document.getElementById('btnBillCancel').classList.remove('hidden');
+
+  document.getElementById('billForm').closest('.card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deleteBill(id) {
+  if (!confirm(t('bill_delete_confirm'))) return;
+  splitBills = splitBills.filter(b => b.id !== id);
+  saveSplitBills();
+  renderSplitBill();
+  showToast(t('toast_bill_deleted'));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – render bills list
+// ═══════════════════════════════════════════════════════════════
+function renderBillsList() {
+  const el    = document.getElementById('billsList');
+  const empty = document.getElementById('billsEmpty');
+  if (!el) return;
+
+  if (splitBills.length === 0) {
+    el.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const sorted = [...splitBills].sort((a, b) => {
+    if (b.date !== a.date) return b.date.localeCompare(a.date);
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+
+  el.innerHTML = sorted.map(bill => {
+    const shares = computeBillShares(bill);
+    const avatars = bill.participantIds.map(pid => `
+      <span class="avatar-chip" style="background:${personColor(pid)}" title="${escHtml(personName(pid))}">${personInitials(personName(pid))}</span>
+    `).join('');
+
+    const breakdown = bill.participantIds.map(pid => {
+      const isPayer = pid === bill.paidBy;
+      const label = isPayer
+        ? (settings.language === 'en' ? 'already paid' : 'sudah bayar (pemilik)')
+        : (settings.language === 'en' ? `owes ${personName(bill.paidBy)}` : `harus bayar ke ${personName(bill.paidBy)}`);
+      return `
+        <div class="bill-breakdown-item">
+          <span>${escHtml(personName(pid))} — ${label}</span>
+          <b>${formatAmount(shares[pid] || 0, bill.currency)}</b>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="bill-row" data-id="${bill.id}">
+        <div class="bill-row-top">
+          <div>
+            <div class="bill-row-title">${escHtml(bill.title || (settings.language === 'en' ? 'Untitled bill' : 'Split bill tanpa judul'))}</div>
+            <div class="bill-row-date">${formatDateDisplay(bill.date)}</div>
+          </div>
+          <div class="bill-row-total">${formatAmount(bill.total, bill.currency)}</div>
+        </div>
+        <div class="bill-row-meta">
+          <span class="bill-paidby-pill">${t('paid_by_pill', personName(bill.paidBy))}</span>
+          <span class="bill-participants-mini">${avatars}</span>
+          <div class="bill-row-actions">
+            <button class="btn-edit billEditBtn" data-id="${bill.id}" title="Edit">✏️</button>
+            <button class="btn-del billDelBtn" data-id="${bill.id}" title="Delete">🗑️</button>
+          </div>
+        </div>
+        <div class="bill-row-breakdown">${breakdown}</div>
+      </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – balances & settle up
+// ═══════════════════════════════════════════════════════════════
+function computeBalances() {
+  const nets = {}; // nets[currency][personId] = number  (positive = should receive)
+
+  splitBills.forEach(bill => {
+    const shares = computeBillShares(bill);
+    if (!nets[bill.currency]) nets[bill.currency] = {};
+    const cur = nets[bill.currency];
+    Object.entries(shares).forEach(([pid, amt]) => {
+      if (pid === bill.paidBy) return;
+      cur[pid]        = (cur[pid] || 0) - amt;
+      cur[bill.paidBy] = (cur[bill.paidBy] || 0) + amt;
+    });
+  });
+
+  settlements.forEach(s => {
+    if (!nets[s.currency]) nets[s.currency] = {};
+    const cur = nets[s.currency];
+    cur[s.fromId] = (cur[s.fromId] || 0) + s.amount;
+    cur[s.toId]   = (cur[s.toId] || 0) - s.amount;
+  });
+
+  return nets;
+}
+
+function simplifyDebts(curNet) {
+  const EPS = 0.5;
+  const creditors = [];
+  const debtors   = [];
+  Object.entries(curNet).forEach(([pid, val]) => {
+    if (val > EPS) creditors.push({ pid, amt: val });
+    else if (val < -EPS) debtors.push({ pid, amt: -val });
+  });
+  creditors.sort((a, b) => b.amt - a.amt);
+  debtors.sort((a, b) => b.amt - a.amt);
+
+  const txns = [];
+  let i = 0, j = 0;
+  while (i < debtors.length && j < creditors.length) {
+    const d = debtors[i], c = creditors[j];
+    const amt = Math.min(d.amt, c.amt);
+    if (amt > EPS) txns.push({ from: d.pid, to: c.pid, amount: amt });
+    d.amt -= amt;
+    c.amt -= amt;
+    if (d.amt <= EPS) i++;
+    if (c.amt <= EPS) j++;
+  }
+  return txns;
+}
+
+function addSettlement(fromId, toId, amount, currency) {
+  settlements.push({ id: uid(), fromId, toId, amount, currency, date: today(), createdAt: Date.now() });
+  saveSettlements();
+  renderSplitBill();
+  showToast(t('toast_settled'));
+}
+
+function renderSettleList() {
+  const el    = document.getElementById('settleList');
+  const empty = document.getElementById('settleEmpty');
+  if (!el) return;
+
+  const nets = computeBalances();
+  const currencies = Object.keys(nets).filter(cur => {
+    const txns = simplifyDebts(nets[cur]);
+    return txns.length > 0;
+  });
+
+  if (currencies.length === 0) {
+    el.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  el.innerHTML = currencies.map(cur => {
+    const txns = simplifyDebts(nets[cur]);
+    const rows = txns.map(txn => `
+      <div class="settle-row" data-from="${txn.from}" data-to="${txn.to}" data-amount="${txn.amount}" data-currency="${cur}">
+        <span class="settle-flow">
+          ${escHtml(personName(txn.from))} <span class="arrow">→</span> ${escHtml(personName(txn.to))}
+        </span>
+        <span class="settle-amount">${formatAmount(txn.amount, cur)}</span>
+        <button type="button" class="btn-success settleBtn">${t('settle_pay_btn')}</button>
+      </div>`).join('');
+    const label = Object.keys(nets).length > 1 ? `<div class="settle-currency-label">${cur}</div>` : '';
+    return `<div class="settle-currency-group">${label}${rows}</div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – render all
+// ═══════════════════════════════════════════════════════════════
+function renderSplitBill() {
+  if (!document.getElementById('splitbill')) return;
+  renderPeopleList();
+  renderPaidBySelect();
+
+  // Rebuild the participant checklist (e.g. after a friend is added/removed)
+  // while preserving whatever the user had already selected/typed in the form.
+  // If there were no rows yet (fresh/empty form), default to "everyone selected".
+  const hadRows = document.querySelectorAll('#participantsList .participant-row').length > 0;
+  const currentChecked = hadRows ? getCheckedParticipantIds() : null;
+  const currentCustom = {};
+  document.querySelectorAll('#participantsList .participant-custom-input').forEach(inp => {
+    const v = parseAmountInput(inp.value);
+    if (v > 0) currentCustom[inp.dataset.person] = v;
+  });
+  renderParticipantsList(
+    currentChecked,
+    Object.keys(currentCustom).length ? currentCustom : null
+  );
+
+  renderBillsList();
+  renderSettleList();
+  updateBillCurrencyPrefix();
+}
+
+function updateBillCurrencyPrefix() {
+  const sel = document.getElementById('bCurrency');
+  const prefixEl = document.getElementById('bCurrencyPrefix');
+  if (!sel || !prefixEl) return;
+  const cfg = CURRENCIES[sel.value] || CURRENCIES.IDR;
+  prefixEl.textContent = cfg.symbol;
+}
+
+// ═══════════════════════════════════════════════════════════════
 // SIDEBAR DRAWER (mobile)
 // ═══════════════════════════════════════════════════════════════
 function openSidebar() {
@@ -1093,6 +1740,9 @@ function initSettingsEvents() {
       if (!confirmed) return;
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem(SETTINGS_KEY);
+      localStorage.removeItem(PEOPLE_KEY);
+      localStorage.removeItem(SPLITBILLS_KEY);
+      localStorage.removeItem(SETTLEMENTS_KEY);
       location.reload();
     });
   }
@@ -1193,6 +1843,86 @@ function initEvents() {
   });
 
   initSettingsEvents();
+  initSplitBillEvents();
+}
+
+function initSplitBillEvents() {
+  // People
+  document.getElementById('btnAddPerson').addEventListener('click', () => {
+    const input = document.getElementById('personName');
+    if (addPerson(input.value)) input.value = '';
+  });
+  document.getElementById('personName').addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const input = e.target;
+      if (addPerson(input.value)) input.value = '';
+    }
+  });
+  document.getElementById('peopleList').addEventListener('click', e => {
+    const delBtn = e.target.closest('.person-chip-del');
+    if (delBtn) deletePerson(delBtn.dataset.id);
+  });
+
+  // Bill form
+  document.getElementById('billForm').addEventListener('submit', handleBillFormSubmit);
+  document.getElementById('btnBillCancel').addEventListener('click', resetBillForm);
+
+  document.getElementById('bCurrency').addEventListener('change', () => {
+    updateBillCurrencyPrefix();
+    const input = document.getElementById('bSubtotal');
+    const raw = parseAmountInput(input.value);
+    const code = document.getElementById('bCurrency').value;
+    if (raw > 0) input.value = formatAmountInput(raw, code);
+    updateBillTotalPreview();
+  });
+
+  document.getElementById('bSubtotal').addEventListener('input', e => {
+    handleAmountInputGeneric(e, 'bCurrency');
+    updateBillTotalPreview();
+  });
+  document.getElementById('bSubtotal').addEventListener('blur', e => {
+    handleAmountBlurGeneric(e, 'bCurrency');
+    updateBillTotalPreview();
+  });
+
+  document.getElementById('bTaxPct').addEventListener('input', updateBillTotalPreview);
+  document.getElementById('bServicePct').addEventListener('input', updateBillTotalPreview);
+
+  document.getElementById('splitEqual').addEventListener('click', () => setBillSplitMode('equal'));
+  document.getElementById('splitCustom').addEventListener('click', () => setBillSplitMode('custom'));
+
+  document.getElementById('participantsList').addEventListener('change', e => {
+    if (e.target.classList.contains('participantChk')) updateParticipantsPreview();
+  });
+  document.getElementById('participantsList').addEventListener('input', e => {
+    if (e.target.classList.contains('participant-custom-input')) {
+      handleAmountInputGeneric(e, 'bCurrency');
+      updateParticipantsPreview();
+    }
+  });
+  document.getElementById('participantsList').addEventListener('blur', e => {
+    if (e.target.classList.contains('participant-custom-input')) {
+      handleAmountBlurGeneric(e, 'bCurrency');
+      updateParticipantsPreview();
+    }
+  }, true);
+
+  // Bills list actions
+  document.getElementById('billsList').addEventListener('click', e => {
+    const editBtn = e.target.closest('.billEditBtn');
+    const delBtn  = e.target.closest('.billDelBtn');
+    if (editBtn) startEditBill(editBtn.dataset.id);
+    if (delBtn)  deleteBill(delBtn.dataset.id);
+  });
+
+  // Settle list "Sudah Bayar"
+  document.getElementById('settleList').addEventListener('click', e => {
+    const btn = e.target.closest('.settleBtn');
+    if (!btn) return;
+    const row = btn.closest('.settle-row');
+    addSettlement(row.dataset.from, row.dataset.to, parseFloat(row.dataset.amount), row.dataset.currency);
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1201,13 +1931,23 @@ function initEvents() {
 function init() {
   loadSettings();
   loadData();
+  loadPeople();
+  loadSplitBills();
+  loadSettlements();
   initEvents();
   applyTranslations();
 
   document.getElementById('fDate').value = today();
+  document.getElementById('bDate').value = today();
 
   setType('expense');
   updateCurrencyPrefix();
+
+  renderPaidBySelect();
+  renderParticipantsList();
+  setBillSplitMode('equal');
+  updateBillCurrencyPrefix();
+  updateBillTotalPreview();
 
   renderAll();
 }
