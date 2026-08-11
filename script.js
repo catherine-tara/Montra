@@ -184,6 +184,37 @@ const I18N = {
     toast_settled: '✅ Pelunasan dicatat!',
     bill_delete_confirm: 'Hapus split bill ini? Tindakan ini tidak bisa dibatalkan.',
     paid_by_pill: name => `💰 ${name} bayar`,
+    nav_lunas: 'Riwayat Lunas',
+    lunas_title: 'Riwayat Split Bill Lunas',
+    lunas_sub: 'Split bill yang sudah ditandai lunas, dipindah ke sini biar daftar utama tetap ringkas',
+    lunas_empty: 'Belum ada split bill yang ditandai lunas.',
+    mark_lunas_btn: '✅ Tandai Lunas',
+    unmark_lunas_btn: '↩️ Batalkan',
+    bill_lunas_pill: 'Lunas',
+    toast_bill_settled: '✅ Split bill ditandai lunas & dipindah ke Riwayat Lunas.',
+    toast_bill_unsettled: '↩️ Split bill dikembalikan ke daftar aktif.',
+    self_tag: '(Kamu)',
+    self_delete_blocked_alert: 'Ini adalah kamu sendiri (nama diambil dari Pengaturan). Untuk mengubahnya, edit "Nama Kamu" di Pengaturan.',
+    filter_month: 'Bulan',
+    filter_or: 'atau',
+    filter_from: 'Dari',
+    filter_to: 'Sampai',
+    show_all_months: 'Semua Waktu',
+    export_filtered_btn: '📤 Export Hasil Ini',
+    toast_export_filtered_empty: '⚠️ Tidak ada transaksi pada rentang ini untuk diekspor.',
+    settlement_history_title: 'Riwayat Pelunasan',
+    settlement_history_sub: 'Semua yang sudah ditandai "Sudah Bayar" — hapus di sini kalau ada yang salah tandai',
+    settlement_history_empty: 'Belum ada riwayat pelunasan.',
+    settlement_delete_confirm: 'Hapus catatan pelunasan ini? Saldo terkait akan muncul lagi di Ringkasan & Pelunasan.',
+    toast_settlement_deleted: '🗑️ Riwayat pelunasan dihapus, saldo diperbarui.',
+    export_modal_title: 'Export Transaksi',
+    export_modal_sub: 'Pilih data yang mau diekspor ke CSV.',
+    export_scope_all: 'Semua Data',
+    export_scope_month: 'Pilih Bulan',
+    export_scope_range: 'Rentang Tanggal',
+    export_confirm_btn: '📤 Export',
+    export_scope_month_alert: 'Pilih bulan terlebih dahulu.',
+    export_scope_range_alert: 'Isi minimal salah satu tanggal (Dari / Sampai).',
   },
   en: {
     tagline: 'Personal Finance',
@@ -310,6 +341,37 @@ const I18N = {
     toast_settled: '✅ Payment recorded!',
     bill_delete_confirm: 'Delete this split bill? This cannot be undone.',
     paid_by_pill: name => `💰 ${name} paid`,
+    nav_lunas: 'Settled History',
+    lunas_title: 'Settled Split Bills',
+    lunas_sub: 'Split bills marked as settled are moved here to keep the main list short',
+    lunas_empty: 'No settled split bills yet.',
+    mark_lunas_btn: '✅ Mark Settled',
+    unmark_lunas_btn: '↩️ Undo',
+    bill_lunas_pill: 'Settled',
+    toast_bill_settled: '✅ Split bill marked settled & moved to Settled History.',
+    toast_bill_unsettled: '↩️ Split bill moved back to the active list.',
+    self_tag: '(You)',
+    self_delete_blocked_alert: 'This is you (name taken from Settings). To change it, edit "Your Name" in Settings.',
+    filter_month: 'Month',
+    filter_or: 'or',
+    filter_from: 'From',
+    filter_to: 'To',
+    show_all_months: 'All Time',
+    export_filtered_btn: '📤 Export This View',
+    toast_export_filtered_empty: '⚠️ No transactions in this range to export.',
+    settlement_history_title: 'Settlement History',
+    settlement_history_sub: 'Everything marked "Paid" — delete here if something was marked by mistake',
+    settlement_history_empty: 'No settlement history yet.',
+    settlement_delete_confirm: 'Delete this settlement record? The related balance will reappear in Summary & Settle Up.',
+    toast_settlement_deleted: '🗑️ Settlement record deleted, balances updated.',
+    export_modal_title: 'Export Transactions',
+    export_modal_sub: 'Choose what to export to CSV.',
+    export_scope_all: 'All Data',
+    export_scope_month: 'Choose Month',
+    export_scope_range: 'Date Range',
+    export_confirm_btn: '📤 Export',
+    export_scope_month_alert: 'Please choose a month first.',
+    export_scope_range_alert: 'Fill in at least one date (From / To).',
   },
 };
 
@@ -332,7 +394,7 @@ function categoryLabel(catId) {
 let transactions = [];
 let editingId     = null;
 let pendingDelId  = null;
-let settings      = { userName: '', language: 'id' };
+let settings      = { userName: '', language: 'id', selfPersonId: null };
 
 // Split bill state
 let people        = [];   // [{ id, name }]
@@ -788,10 +850,20 @@ function getFilteredTransactions() {
   const search    = document.getElementById('searchInput').value.toLowerCase().trim();
   const typeF     = document.getElementById('filterType').value;
   const currencyF = document.getElementById('filterCurrency').value;
+  const month     = document.getElementById('filterMonth')?.value || '';
+  const fromDate  = document.getElementById('filterFrom')?.value || '';
+  const toDate    = document.getElementById('filterTo')?.value || '';
+  const useRange  = !!(fromDate || toDate);
 
   return transactions.filter(t => {
     if (typeF     && t.type     !== typeF)     return false;
     if (currencyF && t.currency !== currencyF) return false;
+    if (useRange) {
+      if (fromDate && t.date < fromDate) return false;
+      if (toDate   && t.date > toDate)   return false;
+    } else if (month && !t.date.startsWith(month)) {
+      return false;
+    }
     if (search) {
       const hay = `${t.date} ${t.category} ${t.description} ${t.currency}`.toLowerCase();
       if (!hay.includes(search)) return false;
@@ -1087,13 +1159,14 @@ function startEdit(id) {
 // ═══════════════════════════════════════════════════════════════
 // CSV EXPORT
 // ═══════════════════════════════════════════════════════════════
-function exportCSV() {
-  if (transactions.length === 0) {
-    showToast(t('toast_export_empty'));
+function exportCSV(list = null, opts = {}) {
+  const rowsSource = list || transactions;
+  if (rowsSource.length === 0) {
+    showToast(opts.emptyMsg || t('toast_export_empty'));
     return;
   }
   const headers = ['id', 'date', 'type', 'category', 'currency', 'amount', 'description'];
-  const rows = transactions.map(tx =>
+  const rows = rowsSource.map(tx =>
     headers.map(h => {
       const val = tx[h] === undefined ? '' : String(tx[h]);
       return val.includes(',') || val.includes('"') || val.includes('\n')
@@ -1106,10 +1179,21 @@ function exportCSV() {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href     = url;
-  a.download = `montra_${today()}.csv`;
+  a.download = `montra_${opts.filenameSuffix || today()}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  showToast(t('toast_export_done', transactions.length));
+  showToast(t('toast_export_done', rowsSource.length));
+}
+
+function exportFilteredCSV() {
+  const filtered = getFilteredTransactions();
+  const month    = document.getElementById('filterMonth')?.value || '';
+  const fromDate = document.getElementById('filterFrom')?.value || '';
+  const toDate   = document.getElementById('filterTo')?.value || '';
+  let suffix = today();
+  if (fromDate || toDate) suffix = `${fromDate || 'awal'}_sd_${toDate || 'akhir'}`;
+  else if (month) suffix = month;
+  exportCSV(filtered, { emptyMsg: t('toast_export_filtered_empty'), filenameSuffix: suffix });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1213,6 +1297,39 @@ function personColor(pid) {
   return CAT_COLORS[Math.abs(hash) % CAT_COLORS.length];
 }
 
+// Keep a "self" person in sync with the name set in Pengaturan/Settings,
+// so the user never has to add themselves manually to the Split Bill friends list.
+function syncSelfPerson() {
+  const name = (settings.userName || '').trim();
+  if (!name) return;
+
+  if (settings.selfPersonId) {
+    const existingSelf = people.find(p => p.id === settings.selfPersonId);
+    if (existingSelf) {
+      if (existingSelf.name !== name) {
+        existingSelf.name = name;
+        savePeople();
+      }
+      return;
+    }
+  }
+
+  // No self person yet (first time, or it was somehow removed) — reuse a
+  // matching name if one already exists, otherwise create a new one.
+  const match = people.find(p => p.name.toLowerCase() === name.toLowerCase());
+  if (match) {
+    match.isSelf = true;
+    settings.selfPersonId = match.id;
+    savePeople();
+  } else {
+    const newPerson = { id: uid(), name, isSelf: true };
+    people.push(newPerson);
+    settings.selfPersonId = newPerson.id;
+    savePeople();
+  }
+  saveSettings();
+}
+
 function addPerson(name) {
   const trimmed = name.trim();
   if (!trimmed) { alert(t('person_name_alert')); return false; }
@@ -1229,6 +1346,10 @@ function addPerson(name) {
 function deletePerson(id) {
   const p = people.find(p => p.id === id);
   if (!p) return;
+  if (id === settings.selfPersonId) {
+    alert(t('self_delete_blocked_alert'));
+    return;
+  }
   if (!confirm(t('person_delete_confirm', p.name))) return;
   people = people.filter(p => p.id !== id);
   savePeople();
@@ -1247,12 +1368,15 @@ function renderPeopleList() {
   }
   empty.classList.add('hidden');
 
-  el.innerHTML = people.map(p => `
-    <span class="person-chip" data-id="${p.id}">
+  el.innerHTML = people.map(p => {
+    const isSelf = p.id === settings.selfPersonId;
+    return `
+    <span class="person-chip ${isSelf ? 'is-self' : ''}" data-id="${p.id}">
       <span class="avatar-chip" style="background:${personColor(p.id)}">${personInitials(p.name)}</span>
       ${escHtml(p.name)}
-      <button type="button" class="person-chip-del" data-id="${p.id}" title="Hapus">&times;</button>
-    </span>`).join('');
+      ${isSelf ? `<span class="person-self-tag">${t('self_tag')}</span>` : `<button type="button" class="person-chip-del" data-id="${p.id}" title="Hapus">&times;</button>`}
+    </span>`;
+  }).join('');
 }
 
 function renderPaidBySelect() {
@@ -1372,6 +1496,28 @@ function updateParticipantsPreview() {
 // ═══════════════════════════════════════════════════════════════
 // SPLIT BILL – compute shares / CRUD
 // ═══════════════════════════════════════════════════════════════
+
+// A bill is "fully settled" once every non-payer participant has been
+// individually marked as paid — this is derived, never stored separately,
+// so there is only ever one source of truth for who has and hasn't paid.
+function isBillFullySettled(bill) {
+  const paid = bill.paidParticipants || [];
+  return bill.participantIds.every(pid => pid === bill.paidBy || paid.includes(pid));
+}
+
+// Bulk-mark every participant on a single bill as paid/unpaid (the
+// "Tandai Lunas" / "Batalkan" buttons in the Daftar Split Bill / Riwayat Lunas lists).
+function toggleBillSettled(id, settled) {
+  const bill = splitBills.find(b => b.id === id);
+  if (!bill) return;
+  bill.paidParticipants = settled
+    ? bill.participantIds.filter(pid => pid !== bill.paidBy)
+    : [];
+  saveSplitBills();
+  renderSplitBill();
+  showToast(settled ? t('toast_bill_settled') : t('toast_bill_unsettled'));
+}
+
 function computeBillShares(bill) {
   if (bill.splitMode === 'custom' && bill.customShares) {
     return { ...bill.customShares };
@@ -1457,12 +1603,17 @@ function handleBillFormSubmit(e) {
 
   if (editingBillId) {
     const idx = splitBills.findIndex(b => b.id === editingBillId);
-    if (idx !== -1) splitBills[idx] = { ...splitBills[idx], ...data };
+    if (idx !== -1) {
+      // Prune paid-status to participants who are still on the bill (and not the payer)
+      const prevPaid = splitBills[idx].paidParticipants || [];
+      const prunedPaid = prevPaid.filter(pid => participantIds.includes(pid) && pid !== paidBy);
+      splitBills[idx] = { ...splitBills[idx], ...data, paidParticipants: prunedPaid };
+    }
     saveSplitBills();
     renderSplitBill();
     showToast(t('toast_bill_updated'));
   } else {
-    splitBills.unshift({ ...data, id: uid(), createdAt: Date.now() });
+    splitBills.unshift({ ...data, id: uid(), createdAt: Date.now(), paidParticipants: [] });
     saveSplitBills();
     renderSplitBill();
     showToast(t('toast_bill_saved'));
@@ -1506,42 +1657,52 @@ function deleteBill(id) {
 // ═══════════════════════════════════════════════════════════════
 // SPLIT BILL – render bills list
 // ═══════════════════════════════════════════════════════════════
+function billRowBreakdownHtml(bill) {
+  const shares = computeBillShares(bill);
+  const paid = bill.paidParticipants || [];
+  return bill.participantIds.map(pid => {
+    const isPayer = pid === bill.paidBy;
+    const isPaid  = isPayer || paid.includes(pid);
+    let label;
+    if (isPayer)   label = settings.language === 'en' ? 'already paid' : 'sudah bayar (pemilik)';
+    else if (isPaid) label = settings.language === 'en' ? '✅ paid' : '✅ sudah lunas';
+    else           label = settings.language === 'en' ? `owes ${personName(bill.paidBy)}` : `harus bayar ke ${personName(bill.paidBy)}`;
+    return `
+      <div class="bill-breakdown-item ${isPaid ? 'is-paid' : ''}">
+        <span>${escHtml(personName(pid))} — ${label}</span>
+        <b>${formatAmount(shares[pid] || 0, bill.currency)}</b>
+      </div>`;
+  }).join('');
+}
+
+function billRowAvatarsHtml(bill) {
+  return bill.participantIds.map(pid => `
+    <span class="avatar-chip" style="background:${personColor(pid)}" title="${escHtml(personName(pid))}">${personInitials(personName(pid))}</span>
+  `).join('');
+}
+
+function sortedBills(list) {
+  return [...list].sort((a, b) => {
+    if (b.date !== a.date) return b.date.localeCompare(a.date);
+    return (b.createdAt || 0) - (a.createdAt || 0);
+  });
+}
+
 function renderBillsList() {
   const el    = document.getElementById('billsList');
   const empty = document.getElementById('billsEmpty');
   if (!el) return;
 
-  if (splitBills.length === 0) {
+  const active = splitBills.filter(b => !isBillFullySettled(b));
+
+  if (active.length === 0) {
     el.innerHTML = '';
     empty.classList.remove('hidden');
     return;
   }
   empty.classList.add('hidden');
 
-  const sorted = [...splitBills].sort((a, b) => {
-    if (b.date !== a.date) return b.date.localeCompare(a.date);
-    return (b.createdAt || 0) - (a.createdAt || 0);
-  });
-
-  el.innerHTML = sorted.map(bill => {
-    const shares = computeBillShares(bill);
-    const avatars = bill.participantIds.map(pid => `
-      <span class="avatar-chip" style="background:${personColor(pid)}" title="${escHtml(personName(pid))}">${personInitials(personName(pid))}</span>
-    `).join('');
-
-    const breakdown = bill.participantIds.map(pid => {
-      const isPayer = pid === bill.paidBy;
-      const label = isPayer
-        ? (settings.language === 'en' ? 'already paid' : 'sudah bayar (pemilik)')
-        : (settings.language === 'en' ? `owes ${personName(bill.paidBy)}` : `harus bayar ke ${personName(bill.paidBy)}`);
-      return `
-        <div class="bill-breakdown-item">
-          <span>${escHtml(personName(pid))} — ${label}</span>
-          <b>${formatAmount(shares[pid] || 0, bill.currency)}</b>
-        </div>`;
-    }).join('');
-
-    return `
+  el.innerHTML = sortedBills(active).map(bill => `
       <div class="bill-row" data-id="${bill.id}">
         <div class="bill-row-top">
           <div>
@@ -1552,74 +1713,193 @@ function renderBillsList() {
         </div>
         <div class="bill-row-meta">
           <span class="bill-paidby-pill">${t('paid_by_pill', personName(bill.paidBy))}</span>
-          <span class="bill-participants-mini">${avatars}</span>
+          <span class="bill-participants-mini">${billRowAvatarsHtml(bill)}</span>
           <div class="bill-row-actions">
+            <button class="btn-success billSettleBtn" data-id="${bill.id}" title="${t('mark_lunas_btn')}">${t('mark_lunas_btn')}</button>
             <button class="btn-edit billEditBtn" data-id="${bill.id}" title="Edit">✏️</button>
             <button class="btn-del billDelBtn" data-id="${bill.id}" title="Delete">🗑️</button>
           </div>
         </div>
-        <div class="bill-row-breakdown">${breakdown}</div>
-      </div>`;
-  }).join('');
+        <div class="bill-row-breakdown">${billRowBreakdownHtml(bill)}</div>
+      </div>`).join('');
+}
+
+function renderLunasList() {
+  const el    = document.getElementById('lunasList');
+  const empty = document.getElementById('lunasEmpty');
+  if (!el) return;
+
+  const settled = splitBills.filter(b => isBillFullySettled(b));
+
+  if (settled.length === 0) {
+    el.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  el.innerHTML = sortedBills(settled).map(bill => `
+      <div class="bill-row is-settled" data-id="${bill.id}">
+        <div class="bill-row-top">
+          <div>
+            <div class="bill-row-title">${escHtml(bill.title || (settings.language === 'en' ? 'Untitled bill' : 'Split bill tanpa judul'))}</div>
+            <div class="bill-row-date">${formatDateDisplay(bill.date)}</div>
+          </div>
+          <div class="bill-row-total">${formatAmount(bill.total, bill.currency)}</div>
+        </div>
+        <div class="bill-row-meta">
+          <span class="bill-lunas-pill">✅ ${t('bill_lunas_pill')}</span>
+          <span class="bill-paidby-pill">${t('paid_by_pill', personName(bill.paidBy))}</span>
+          <span class="bill-participants-mini">${billRowAvatarsHtml(bill)}</span>
+          <div class="bill-row-actions">
+            <button class="btn-outline text-sm py-1 billUnsettleBtn" data-id="${bill.id}">${t('unmark_lunas_btn')}</button>
+            <button class="btn-del billDelBtn" data-id="${bill.id}" title="Delete">🗑️</button>
+          </div>
+        </div>
+        <div class="bill-row-breakdown">${billRowBreakdownHtml(bill)}</div>
+      </div>`).join('');
 }
 
 // ═══════════════════════════════════════════════════════════════
 // SPLIT BILL – balances & settle up
 // ═══════════════════════════════════════════════════════════════
-function computeBalances() {
-  const nets = {}; // nets[currency][personId] = number  (positive = should receive)
+// ═══════════════════════════════════════════════════════════════
+// SPLIT BILL – balances & settle up
+//
+// Single source of truth: each bill tracks exactly which participants
+// have paid (bill.paidParticipants). There is no separate balance ledger
+// that can drift out of sync with that — "Sudah Bayar" on a summary row
+// and "Tandai Lunas" on a bill both just flip that same per-bill flag,
+// so they can never double-count or contradict each other.
+//
+// Uses PAIRWISE netting: debts only cancel between the exact same two
+// people (e.g. if A owes B for one bill and B owes A for another, those
+// cancel out). Debt is never routed through a third person to minimize
+// transaction count — that's more "optimal" on paper but produces
+// payments that don't map back to who actually shared which bill, which
+// is confusing. Pairwise keeps every suggested payment traceable to real
+// shared bills.
+// ═══════════════════════════════════════════════════════════════
+function computeRawPairwiseDebts() {
+  // raw[currency][fromId][toId] = amount fromId owes toId (directional, un-netted)
+  const raw = {};
+  function add(cur, from, to, amt) {
+    if (!raw[cur]) raw[cur] = {};
+    if (!raw[cur][from]) raw[cur][from] = {};
+    raw[cur][from][to] = (raw[cur][from][to] || 0) + amt;
+  }
 
   splitBills.forEach(bill => {
     const shares = computeBillShares(bill);
-    if (!nets[bill.currency]) nets[bill.currency] = {};
-    const cur = nets[bill.currency];
+    const paid = bill.paidParticipants || [];
     Object.entries(shares).forEach(([pid, amt]) => {
       if (pid === bill.paidBy) return;
-      cur[pid]        = (cur[pid] || 0) - amt;
-      cur[bill.paidBy] = (cur[bill.paidBy] || 0) + amt;
+      if (paid.includes(pid)) return; // this participant already settled up for this bill
+      add(bill.currency, pid, bill.paidBy, amt);
     });
   });
 
-  settlements.forEach(s => {
-    if (!nets[s.currency]) nets[s.currency] = {};
-    const cur = nets[s.currency];
-    cur[s.fromId] = (cur[s.fromId] || 0) + s.amount;
-    cur[s.toId]   = (cur[s.toId] || 0) - s.amount;
-  });
-
-  return nets;
+  return raw;
 }
 
-function simplifyDebts(curNet) {
+function simplifyPairwise(rawCur) {
   const EPS = 0.5;
-  const creditors = [];
-  const debtors   = [];
-  Object.entries(curNet).forEach(([pid, val]) => {
-    if (val > EPS) creditors.push({ pid, amt: val });
-    else if (val < -EPS) debtors.push({ pid, amt: -val });
+  const people = new Set();
+  Object.keys(rawCur).forEach(f => {
+    people.add(f);
+    Object.keys(rawCur[f]).forEach(tt => people.add(tt));
   });
-  creditors.sort((a, b) => b.amt - a.amt);
-  debtors.sort((a, b) => b.amt - a.amt);
-
+  const arr = Array.from(people);
   const txns = [];
-  let i = 0, j = 0;
-  while (i < debtors.length && j < creditors.length) {
-    const d = debtors[i], c = creditors[j];
-    const amt = Math.min(d.amt, c.amt);
-    if (amt > EPS) txns.push({ from: d.pid, to: c.pid, amount: amt });
-    d.amt -= amt;
-    c.amt -= amt;
-    if (d.amt <= EPS) i++;
-    if (c.amt <= EPS) j++;
+
+  for (let i = 0; i < arr.length; i++) {
+    for (let j = i + 1; j < arr.length; j++) {
+      const A = arr[i], B = arr[j];
+      const aToB = rawCur[A]?.[B] || 0;
+      const bToA = rawCur[B]?.[A] || 0;
+      const net = aToB - bToA;
+      if (net > EPS) txns.push({ from: A, to: B, amount: net });
+      else if (net < -EPS) txns.push({ from: B, to: A, amount: -net });
+    }
   }
   return txns;
 }
 
+// Paying off a net (from → to) amount settles every bill that contributed
+// to that pairwise balance in either direction — marks the relevant
+// participant paid on each one. Logs exactly which (bill, participant)
+// flags were flipped, so it can be undone precisely later.
 function addSettlement(fromId, toId, amount, currency) {
-  settlements.push({ id: uid(), fromId, toId, amount, currency, date: today(), createdAt: Date.now() });
+  const affected = [];
+
+  splitBills.forEach(bill => {
+    if (bill.currency !== currency) return;
+    const paid = bill.paidParticipants || [];
+
+    if (bill.paidBy === toId && bill.participantIds.includes(fromId) && !paid.includes(fromId)) {
+      bill.paidParticipants = [...paid, fromId];
+      affected.push({ billId: bill.id, participantId: fromId });
+    }
+  });
+
+  splitBills.forEach(bill => {
+    if (bill.currency !== currency) return;
+    const paid = bill.paidParticipants || [];
+    if (bill.paidBy === fromId && bill.participantIds.includes(toId) && !paid.includes(toId)) {
+      bill.paidParticipants = [...paid, toId];
+      affected.push({ billId: bill.id, participantId: toId });
+    }
+  });
+
+  saveSplitBills();
+  settlements.push({ id: uid(), fromId, toId, amount, currency, date: today(), createdAt: Date.now(), affected });
   saveSettlements();
   renderSplitBill();
   showToast(t('toast_settled'));
+}
+
+// Precisely reverses exactly the (bill, participant) flags a settlement
+// flipped — never re-adds a debt that was already independently settled.
+function deleteSettlement(id) {
+  const s = settlements.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(t('settlement_delete_confirm'))) return;
+
+  (s.affected || []).forEach(({ billId, participantId }) => {
+    const bill = splitBills.find(b => b.id === billId);
+    if (bill) bill.paidParticipants = (bill.paidParticipants || []).filter(pid => pid !== participantId);
+  });
+  saveSplitBills();
+
+  settlements = settlements.filter(x => x.id !== id);
+  saveSettlements();
+  renderSplitBill();
+  showToast(t('toast_settlement_deleted'));
+}
+
+function renderSettlementHistory() {
+  const el    = document.getElementById('settlementHistoryList');
+  const empty = document.getElementById('settlementHistoryEmpty');
+  if (!el) return;
+
+  if (settlements.length === 0) {
+    el.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  const sorted = [...settlements].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  el.innerHTML = sorted.map(s => `
+    <div class="settle-row" style="background:#f7f8fa">
+      <span class="settle-flow" style="color:#57606a">
+        ${escHtml(personName(s.fromId))} <span class="arrow" style="color:#2EC4B6">→</span> ${escHtml(personName(s.toId))}
+        <span style="font-weight:500;color:#9ca3af;font-size:0.68rem;margin-left:0.3rem">${formatDateDisplay(s.date)}</span>
+      </span>
+      <span class="settle-amount" style="color:#2D3436">${formatAmount(s.amount, s.currency)}</span>
+      <button type="button" class="btn-del settlementDelBtn" data-id="${s.id}" title="Hapus">🗑️</button>
+    </div>`).join('');
 }
 
 function renderSettleList() {
@@ -1627,11 +1907,8 @@ function renderSettleList() {
   const empty = document.getElementById('settleEmpty');
   if (!el) return;
 
-  const nets = computeBalances();
-  const currencies = Object.keys(nets).filter(cur => {
-    const txns = simplifyDebts(nets[cur]);
-    return txns.length > 0;
-  });
+  const raw = computeRawPairwiseDebts();
+  const currencies = Object.keys(raw).filter(cur => simplifyPairwise(raw[cur]).length > 0);
 
   if (currencies.length === 0) {
     el.innerHTML = '';
@@ -1641,7 +1918,7 @@ function renderSettleList() {
   empty.classList.add('hidden');
 
   el.innerHTML = currencies.map(cur => {
-    const txns = simplifyDebts(nets[cur]);
+    const txns = simplifyPairwise(raw[cur]);
     const rows = txns.map(txn => `
       <div class="settle-row" data-from="${txn.from}" data-to="${txn.to}" data-amount="${txn.amount}" data-currency="${cur}">
         <span class="settle-flow">
@@ -1650,7 +1927,7 @@ function renderSettleList() {
         <span class="settle-amount">${formatAmount(txn.amount, cur)}</span>
         <button type="button" class="btn-success settleBtn">${t('settle_pay_btn')}</button>
       </div>`).join('');
-    const label = Object.keys(nets).length > 1 ? `<div class="settle-currency-label">${cur}</div>` : '';
+    const label = Object.keys(raw).length > 1 ? `<div class="settle-currency-label">${cur}</div>` : '';
     return `<div class="settle-currency-group">${label}${rows}</div>`;
   }).join('');
 }
@@ -1679,7 +1956,9 @@ function renderSplitBill() {
   );
 
   renderBillsList();
+  renderLunasList();
   renderSettleList();
+  renderSettlementHistory();
   updateBillCurrencyPrefix();
 }
 
@@ -1689,6 +1968,40 @@ function updateBillCurrencyPrefix() {
   if (!sel || !prefixEl) return;
   const cfg = CURRENCIES[sel.value] || CURRENCIES.IDR;
   prefixEl.textContent = cfg.symbol;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EXPORT MODAL – choose all / month / date range before exporting
+// ═══════════════════════════════════════════════════════════════
+function openExportModal() {
+  if (!document.getElementById('exportMonthInput').value) {
+    document.getElementById('exportMonthInput').value = today().slice(0, 7);
+  }
+  document.getElementById('exportModal').classList.add('open');
+}
+function closeExportModal() {
+  document.getElementById('exportModal').classList.remove('open');
+}
+
+function handleExportModalConfirm() {
+  const scopeMonth = document.getElementById('exportScopeMonth').checked;
+  const scopeRange = document.getElementById('exportScopeRange').checked;
+
+  if (scopeMonth) {
+    const month = document.getElementById('exportMonthInput').value;
+    if (!month) { alert(t('export_scope_month_alert')); return; }
+    const list = transactions.filter(tx => tx.date.startsWith(month));
+    exportCSV(list, { emptyMsg: t('toast_export_filtered_empty'), filenameSuffix: month });
+  } else if (scopeRange) {
+    const from = document.getElementById('exportFromInput').value;
+    const to   = document.getElementById('exportToInput').value;
+    if (!from && !to) { alert(t('export_scope_range_alert')); return; }
+    const list = transactions.filter(tx => (!from || tx.date >= from) && (!to || tx.date <= to));
+    exportCSV(list, { emptyMsg: t('toast_export_filtered_empty'), filenameSuffix: `${from || 'awal'}_sd_${to || 'akhir'}` });
+  } else {
+    exportCSV();
+  }
+  closeExportModal();
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1726,7 +2039,9 @@ function initSettingsEvents() {
       }
       settings.userName = name;
       saveSettings();
+      syncSelfPerson();
       renderGreeting();
+      renderSplitBill();
       showToast(t('toast_name_saved', name));
     });
   }
@@ -1783,6 +2098,28 @@ function initEvents() {
   document.getElementById('filterType').addEventListener('change', renderTable);
   document.getElementById('filterCurrency').addEventListener('change', renderTable);
 
+  // Month vs custom date-range are mutually exclusive ("bulan ATAU tanggal")
+  document.getElementById('filterMonth').addEventListener('change', () => {
+    document.getElementById('filterFrom').value = '';
+    document.getElementById('filterTo').value = '';
+    renderTable();
+  });
+  document.getElementById('filterFrom').addEventListener('change', () => {
+    document.getElementById('filterMonth').value = '';
+    renderTable();
+  });
+  document.getElementById('filterTo').addEventListener('change', () => {
+    document.getElementById('filterMonth').value = '';
+    renderTable();
+  });
+  document.getElementById('btnShowAllMonths').addEventListener('click', () => {
+    document.getElementById('filterMonth').value = '';
+    document.getElementById('filterFrom').value = '';
+    document.getElementById('filterTo').value = '';
+    renderTable();
+  });
+  document.getElementById('btnExportFiltered').addEventListener('click', exportFilteredCSV);
+
   document.getElementById('btnClearAll').addEventListener('click', () => {
     if (transactions.length === 0) { showToast(t('toast_clear_empty')); return; }
     if (confirm(t('toast_clear_confirm'))) {
@@ -1793,7 +2130,21 @@ function initEvents() {
     }
   });
 
-  document.getElementById('btnExport').addEventListener('click', exportCSV);
+  document.getElementById('btnExport').addEventListener('click', openExportModal);
+  document.getElementById('exportModalCancel').addEventListener('click', closeExportModal);
+  document.getElementById('exportModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('exportModal')) closeExportModal();
+  });
+  document.getElementById('exportModalConfirm').addEventListener('click', handleExportModalConfirm);
+  document.getElementById('exportMonthInput').addEventListener('focus', () => {
+    document.getElementById('exportScopeMonth').checked = true;
+  });
+  document.getElementById('exportFromInput').addEventListener('focus', () => {
+    document.getElementById('exportScopeRange').checked = true;
+  });
+  document.getElementById('exportToInput').addEventListener('focus', () => {
+    document.getElementById('exportScopeRange').checked = true;
+  });
 
   document.getElementById('btnImport').addEventListener('click', () => {
     document.getElementById('importFile').value = '';
@@ -1908,12 +2259,22 @@ function initSplitBillEvents() {
     }
   }, true);
 
-  // Bills list actions
+  // Bills list actions (active list)
   document.getElementById('billsList').addEventListener('click', e => {
-    const editBtn = e.target.closest('.billEditBtn');
-    const delBtn  = e.target.closest('.billDelBtn');
-    if (editBtn) startEditBill(editBtn.dataset.id);
-    if (delBtn)  deleteBill(delBtn.dataset.id);
+    const editBtn   = e.target.closest('.billEditBtn');
+    const delBtn    = e.target.closest('.billDelBtn');
+    const settleBtn = e.target.closest('.billSettleBtn');
+    if (editBtn)   startEditBill(editBtn.dataset.id);
+    if (delBtn)    deleteBill(delBtn.dataset.id);
+    if (settleBtn) toggleBillSettled(settleBtn.dataset.id, true);
+  });
+
+  // Riwayat Lunas (settled) list actions
+  document.getElementById('lunasList').addEventListener('click', e => {
+    const delBtn      = e.target.closest('.billDelBtn');
+    const unsettleBtn = e.target.closest('.billUnsettleBtn');
+    if (delBtn)      deleteBill(delBtn.dataset.id);
+    if (unsettleBtn) toggleBillSettled(unsettleBtn.dataset.id, false);
   });
 
   // Settle list "Sudah Bayar"
@@ -1922,6 +2283,12 @@ function initSplitBillEvents() {
     if (!btn) return;
     const row = btn.closest('.settle-row');
     addSettlement(row.dataset.from, row.dataset.to, parseFloat(row.dataset.amount), row.dataset.currency);
+  });
+
+  // Settlement history — undo a mistaken "Sudah Bayar"
+  document.getElementById('settlementHistoryList').addEventListener('click', e => {
+    const delBtn = e.target.closest('.settlementDelBtn');
+    if (delBtn) deleteSettlement(delBtn.dataset.id);
   });
 }
 
@@ -1934,11 +2301,13 @@ function init() {
   loadPeople();
   loadSplitBills();
   loadSettlements();
+  syncSelfPerson();
   initEvents();
   applyTranslations();
 
   document.getElementById('fDate').value = today();
   document.getElementById('bDate').value = today();
+  document.getElementById('filterMonth').value = today().slice(0, 7);
 
   setType('expense');
   updateCurrencyPrefix();
