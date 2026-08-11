@@ -32,7 +32,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-  <link rel="stylesheet" href="style.css?v=9" />
+  <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body class="bg-cream font-sans text-charcoal min-h-screen">
 
@@ -73,6 +73,10 @@
         <a href="#transactions" class="sidebar-link" data-nav="transactions">
           <span class="nav-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></span>
           <span data-i18n="nav_transactions">Riwayat Transaksi</span>
+        </a>
+        <a href="#splitbill" class="sidebar-link" data-nav="splitbill">
+          <span class="nav-icon"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <span data-i18n="nav_splitbill">Split Bill</span>
         </a>
       </nav>
 
@@ -313,6 +317,137 @@
 
         </section><!-- /transactions -->
 
+        <!-- ══════════════════════════════════════
+             SPLIT BILL
+        ══════════════════════════════════════ -->
+        <section id="splitbill" class="dashboard-panel view-panel">
+
+          <!-- Teman -->
+          <div class="card">
+            <h2 class="section-title"><span class="title-chip" style="background:#EDE7FE">👥</span><span data-i18n="people_title">Teman</span></h2>
+            <p class="text-xs text-gray-400 mt-1 mb-3" data-i18n="people_sub">Tambahkan orang yang biasa split bill sama kamu</p>
+            <div class="people-add-row">
+              <input type="text" id="personName" data-i18n-placeholder="person_placeholder" placeholder="Nama teman…" maxlength="24" class="form-input" />
+              <button id="btnAddPerson" class="btn-primary" data-i18n="add">Tambah</button>
+            </div>
+            <div id="peopleList" class="people-chip-list"></div>
+            <p id="peopleEmpty" class="text-sm text-gray-400 mt-2 hidden" data-i18n="people_empty">Belum ada teman. Tambahkan dulu ya!</p>
+          </div>
+
+          <!-- Tambah Split Bill -->
+          <div class="card">
+            <h2 class="section-title"><span class="title-chip" style="background:#FFE1F0">🧾</span><span data-i18n="add_bill_title">Tambah Split Bill</span></h2>
+            <form id="billForm" class="space-y-4 mt-4" novalidate>
+
+              <div>
+                <label class="form-label" data-i18n="bill_title_label">Judul</label>
+                <input type="text" id="bTitle" class="form-input" data-i18n-placeholder="bill_title_placeholder" placeholder="Mis. Makan malam di…" maxlength="80" />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="form-label" data-i18n="date">Tanggal</label>
+                  <input type="date" id="bDate" class="form-input" required />
+                </div>
+                <div>
+                  <label class="form-label" data-i18n="currency">Mata Uang</label>
+                  <select id="bCurrency" class="form-input">
+                    <option value="IDR">IDR – Rupiah</option>
+                    <option value="USD">USD – Dollar AS</option>
+                    <option value="KRW">KRW – Won Korea</option>
+                    <option value="JPY">JPY – Yen Jepang</option>
+                    <option value="SGD">SGD – Dollar Singapura</option>
+                    <option value="EUR">EUR – Euro</option>
+                    <option value="GBP">GBP – Pound Sterling</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label" data-i18n="paid_by">Dibayar Oleh</label>
+                <select id="bPaidBy" class="form-input" required>
+                  <option value="" data-i18n="choose">Pilih…</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="form-label" data-i18n="subtotal_label">Subtotal (sebelum pajak)</label>
+                <div class="relative">
+                  <span id="bCurrencyPrefix" class="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold" style="color:#0F9488"></span>
+                  <input type="text" id="bSubtotal" class="form-input pl-12" placeholder="0" inputmode="decimal" autocomplete="off" required />
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="form-label" data-i18n="tax_label">Pajak / PPN (%)</label>
+                  <input type="number" id="bTaxPct" class="form-input" min="0" max="100" step="0.1" value="11" />
+                </div>
+                <div>
+                  <label class="form-label" data-i18n="service_label">Service Charge (%)</label>
+                  <input type="number" id="bServicePct" class="form-input" min="0" max="100" step="0.1" value="0" />
+                </div>
+              </div>
+
+              <div class="bill-total-preview">
+                <div class="bill-total-row">
+                  <span data-i18n="subtotal_short">Subtotal</span>
+                  <span id="bSubtotalPreview">Rp0</span>
+                </div>
+                <div class="bill-total-row">
+                  <span data-i18n="tax_short">Pajak</span>
+                  <span id="bTaxPreview">Rp0</span>
+                </div>
+                <div class="bill-total-row">
+                  <span data-i18n="service_short">Service</span>
+                  <span id="bServicePreview">Rp0</span>
+                </div>
+                <div class="bill-total-row bill-total-row-final">
+                  <span data-i18n="total_label">Total</span>
+                  <span id="bTotalPreview">Rp0</span>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label" data-i18n="split_mode_label">Metode Split</label>
+                <div class="flex rounded-xl overflow-hidden border border-gray-200 h-10">
+                  <button type="button" id="splitEqual" class="type-btn flex-1 text-sm font-semibold" data-i18n="split_equal">Rata</button>
+                  <button type="button" id="splitCustom" class="type-btn flex-1 text-sm font-semibold" data-i18n="split_custom">Custom</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label" data-i18n="participants_label">Peserta / Split Ke</label>
+                <div id="participantsList" class="participants-list"></div>
+                <p id="participantsEmpty" class="text-sm text-gray-400 hidden" data-i18n="participants_empty">Tambahkan teman terlebih dahulu di atas.</p>
+                <p id="customSumHint" class="text-xs text-gray-400 mt-2 hidden"></p>
+              </div>
+
+              <div class="flex gap-2 pt-1">
+                <button type="submit" id="btnBillSubmit" class="btn-primary flex-1" data-i18n="submit_save">Simpan</button>
+                <button type="button" id="btnBillCancel" class="btn-ghost hidden" data-i18n="cancel">Batal</button>
+              </div>
+              <p id="billFormError" class="text-sm hidden" style="color:#FF6B6B"></p>
+            </form>
+          </div>
+
+          <!-- Daftar Split Bill -->
+          <div class="card">
+            <h2 class="section-title mb-4"><span class="title-chip" style="background:#D9F7EF">📋</span><span data-i18n="bill_list_title">Daftar Split Bill</span></h2>
+            <div id="billsList" class="bills-list"></div>
+            <p id="billsEmpty" class="text-sm text-gray-400 hidden" data-i18n="bills_empty">Belum ada split bill.</p>
+          </div>
+
+          <!-- Ringkasan & Pelunasan -->
+          <div class="card">
+            <h2 class="section-title mb-1"><span class="title-chip" style="background:#FFF3C4">⚖️</span><span data-i18n="settle_title">Ringkasan & Pelunasan</span></h2>
+            <p class="text-xs text-gray-400 mb-4" data-i18n="settle_sub">Gabungan saldo dari semua split bill di atas</p>
+            <div id="settleList" class="settle-list"></div>
+            <p id="settleEmpty" class="text-sm text-gray-400 hidden" data-i18n="settle_empty">Semua sudah lunas! 🎉</p>
+          </div>
+
+        </section><!-- /splitbill -->
+
         <!-- FOOTER -->
         <footer class="content-footer">
           Montra &copy; 2026 &middot; Created by CTM
@@ -337,6 +472,6 @@
     </div>
   </div>
 
-  <script src="script.js?v=9"></script>
+  <script src="script.js?v=10"></script>
 </body>
 </html>
